@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Домашний помощник</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap');
+:root{
+  --bg:#f4f2ee;--surface:#fff;--surface2:#f0ede7;--border:#e8e3db;
+  --text:#1c1814;--text2:#7a726a;--text3:#b5afa8;
+  --accent:#6b5344;--accent-light:#f3ede8;
+  --green:#4e8a6c;--green-bg:#edf6f1;
+  --yellow:#b89400;--yellow-bg:#fdf8e0;
+  --red:#b84545;--red-bg:#faeaea;
+  --blue:#4a6fa5;--blue-bg:#edf1f9;
+  --shadow:0 1px 2px rgba(0,0,0,0.04),0 4px 16px rgba(0,0,0,0.05);
+  --r:16px;--r-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100%;font-size:15px;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+button{cursor:pointer;-webkit-appearance:none}
+input,select,textarea{-webkit-appearance:none}
+
+.hdr{background:var(--surface);padding:env(safe-area-inset-top,44px) 20px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:60}
+.hdr-title{font-size:18px;font-weight:300;letter-spacing:1.5px;text-align:center;color:var(--text2);font-style:italic}
+
+.nav{display:flex;background:var(--surface);border-top:1px solid var(--border);position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:60;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-btn{flex:1;padding:9px 4px 14px;border:none;background:none;color:var(--text3);font-size:9px;font-weight:500;letter-spacing:0.3px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:4px;transition:color .15s}
+.nav-btn.active{color:var(--accent)}
+.ns{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+.content{padding:12px 14px 80px}
+.tab{display:none}.tab.active{display:block}
+.sec{margin-bottom:18px}
+.sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);padding:0 2px;margin-bottom:7px}
+
+.search-row{display:flex;gap:8px;margin-bottom:11px;align-items:center}
+.search{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:0 13px;display:flex;align-items:center;gap:9px;flex:1;box-shadow:var(--shadow)}
+.search input{flex:1;border:none;background:none;padding:10px 0;font-size:15px;outline:none;color:var(--text)}
+.search input::placeholder{color:var(--text3)}
+.icon-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--text2);box-shadow:var(--shadow);white-space:nowrap;flex-shrink:0;min-height:42px}
+.icon-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ITEM CARD */
+.card{background:var(--surface);border-radius:var(--r);margin-bottom:2px;overflow:hidden;box-shadow:var(--shadow)}
+.item-row{display:flex;align-items:center;padding:12px 15px;gap:11px;min-height:48px}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.dot.много{background:var(--green)}.dot.норм{background:var(--yellow)}.dot.заканчивается{background:var(--red)}.dot.нет{background:var(--border);box-shadow:0 0 0 2px var(--red)}
+.item-name{flex:1;font-size:15px;line-height:1.3}
+.item-price{font-size:13px;color:var(--text3)}
+.item-price.set{color:var(--text2);font-weight:500}
+.chev{color:var(--text3);font-size:13px;margin-left:4px;transition:transform .2s;display:inline-block}
+.chev.open{transform:rotate(90deg)}
+
+/* LEVEL 1 */
+.item-d1{display:none;padding:0 15px 12px;border-top:1px solid var(--surface2)}
+.item-d1.open{display:block}
+.stock-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.spill{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:500;background:none;color:var(--text2);min-height:36px}
+.spill.a-много{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.spill.a-норм{background:var(--yellow-bg);border-color:var(--yellow);color:var(--yellow)}
+.spill.a-заканчивается{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.spill.a-нет{background:#f5f5f5;border-color:var(--text3);color:var(--text2)}
+.d1-actions{display:flex;gap:7px;margin-top:4px}
+.d1-btn{flex:1;padding:9px 8px;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:500;min-height:38px}
+.d1-list{background:var(--accent-light);color:var(--accent)}
+.d1-list.in{background:var(--green-bg);color:var(--green)}
+.d1-more{background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px}
+.d1-edit{background:var(--surface2);color:var(--text2);flex:0;padding:9px 14px}
+
+/* LEVEL 2 — price, url, notes + ONE save button */
+.item-d2{display:none;padding:0 15px 14px;border-top:1px solid var(--surface2)}
+.item-d2.open{display:block}
+.d2-field{margin-bottom:10px}
+.d2-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
+.d2-inp{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 12px;font-size:15px;outline:none;color:var(--text);background:var(--surface);min-height:40px}
+.d2-inp:focus{border-color:var(--accent)}
+.d2-url-row{display:flex;gap:7px;align-items:center}
+.d2-url-inp{flex:1;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:14px;outline:none;color:var(--text);background:var(--surface);min-height:40px}
+.d2-url-inp:focus{border-color:var(--accent)}
+.d2-url-open{background:var(--blue-bg);border:none;border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--blue);font-weight:500;min-height:40px;white-space:nowrap}
+.d2-notes{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:14px;outline:none;resize:none;color:var(--text);min-height:66px;line-height:1.4;background:var(--surface)}
+.d2-notes:focus{border-color:var(--accent)}
+.price-hist{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.price-hist-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);padding:3px 8px;background:var(--surface2);border-radius:6px}
+/* Single save button for all level-2 fields */
+.d2-save-all{width:100%;margin-top:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:11px;font-size:15px;font-weight:600;min-height:44px}
+.d2-del{width:100%;background:none;border:none;color:var(--text3);font-size:13px;padding:8px;margin-top:4px;min-height:36px}
+
+/* SHOP */
+.total-wrap{background:var(--accent);border-radius:var(--r);padding:18px 20px;margin-bottom:13px;box-shadow:var(--shadow)}
+.total-lbl{font-size:11px;font-weight:500;color:rgba(255,255,255,0.7);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:4px}
+.total-amt{font-size:36px;font-weight:700;color:#fff;letter-spacing:-1px;line-height:1}
+.total-row{display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:7px}
+.total-count{font-size:12px;color:rgba(255,255,255,0.65);flex:1}
+.total-btn{background:rgba(255,255,255,0.18);border:none;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:500;color:#fff;min-height:34px}
+.total-btn.danger{background:rgba(255,80,80,0.3)}
+.list-acts{display:flex;gap:8px;margin-bottom:13px}
+.list-act{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 7px;font-size:13px;font-weight:500;color:var(--accent);box-shadow:var(--shadow);min-height:42px}
+.shop-item{background:var(--surface);border-radius:var(--r);margin-bottom:2px;display:flex;align-items:center;gap:9px;padding:10px 13px;box-shadow:var(--shadow);min-height:52px}
+.shop-chk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .15s}
+.shop-chk.on{background:var(--green);border-color:var(--green);color:#fff}
+.shop-name-col{flex:1;min-width:0}
+.shop-name-text{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-name-text.done{text-decoration:line-through;color:var(--text3)}
+.shop-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.shop-qty-col{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.shop-qty-inp{width:50px;border:1px solid var(--border);border-radius:7px;padding:5px 6px;font-size:13px;text-align:center;outline:none;color:var(--text);background:var(--surface2);min-height:34px}
+.shop-qty-inp:focus{border-color:var(--accent);background:var(--surface)}
+.shop-qty-unit{font-size:11px;color:var(--text3);min-width:20px}
+.shop-price-col{font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;flex-shrink:0}
+.shop-del{background:none;border:none;color:var(--text3);font-size:18px;padding:0 0 0 5px;flex-shrink:0;min-width:28px;min-height:36px}
+
+/* MEALS */
+.meal-subtabs{display:flex;background:var(--surface2);border-radius:12px;padding:3px;margin-bottom:14px;gap:2px}
+.mst{flex:1;padding:8px 4px;border:none;background:none;font-size:12px;font-weight:500;color:var(--text2);border-radius:10px;transition:all .15s;text-align:center;min-height:38px}
+.mst.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08);font-weight:600}
+.recipe-card{background:var(--surface);border-radius:var(--r);margin-bottom:11px;overflow:hidden;box-shadow:var(--shadow)}
+.recipe-photo{width:100%;height:170px;object-fit:cover;display:block}
+.recipe-photo-ph{width:100%;height:100px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.recipe-body{padding:12px 15px 9px}
+.recipe-name{font-size:16px;font-weight:600;letter-spacing:-0.2px;margin-bottom:4px}
+.recipe-meta{font-size:12px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap}
+.recipe-btns{display:flex;gap:6px;padding:0 15px 11px;flex-wrap:wrap}
+.rec-btn{padding:8px 9px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap;min-height:36px}
+.rec-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.rb-edit{background:var(--accent-light);color:var(--accent)}
+.rb-plan{background:var(--blue-bg);color:var(--blue)}
+.rb-cook{background:var(--green-bg);color:var(--green)}
+.rb-back{background:var(--yellow-bg);color:var(--yellow)}
+.rb-shop{background:var(--accent);color:#fff}
+.rb-del{background:var(--red-bg);color:var(--red)}
+.recipe-detail{display:none;padding:0 15px 13px;border-top:1px solid var(--surface2)}
+.recipe-detail.open{display:block}
+.detail-hdr{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin:11px 0 7px}
+.ing-check-list{display:flex;flex-direction:column;gap:4px}
+.ing-row{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:var(--r-sm);font-size:14px}
+.ing-row.ok{background:var(--green-bg);color:var(--green)}
+.ing-row.low{background:var(--yellow-bg);color:var(--yellow)}
+.ing-row.missing{background:var(--red-bg);color:var(--red)}
+.ing-row.unknown{background:var(--surface2);color:var(--text2)}
+.ing-ico{font-size:12px;flex-shrink:0;width:13px;text-align:center}
+.ing-ing{flex:1;font-weight:500;font-size:13px}
+.ing-amt-tag{font-size:11px;opacity:.8;white-space:nowrap}
+.ing-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap}
+.ing-cart-btn{background:rgba(0,0,0,0.09);border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;color:inherit;flex-shrink:0;min-height:26px;transition:all .2s}
+.recipe-expand-btn{width:100%;background:none;border:none;border-top:1px solid var(--surface2);padding:10px 15px;font-size:13px;font-weight:500;color:var(--text2);text-align:left;display:flex;justify-content:space-between;align-items:center;min-height:42px}
+
+.cooked-card{background:var(--surface);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);display:flex}
+.cooked-photo{width:86px;flex-shrink:0;object-fit:cover;display:block;background:var(--surface2)}
+.cooked-photo-ph{width:86px;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text3)}
+.cooked-info{flex:1;padding:11px 12px}
+.cooked-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.cooked-status{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding:3px 7px;border-radius:20px;margin-bottom:5px}
+.st-fresh{background:var(--green-bg);color:var(--green)}
+.st-frozen{background:var(--blue-bg);color:var(--blue)}
+.st-semi{background:var(--yellow-bg);color:var(--yellow)}
+.cooked-date{font-size:11px;color:var(--text3);margin-bottom:7px}
+.portion-row{display:flex;align-items:center;gap:6px}
+.port-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:none;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center}
+.port-n{font-size:17px;font-weight:700;min-width:22px;text-align:center}
+.port-lbl{font-size:11px;color:var(--text3)}
+.cooked-del{background:none;border:none;color:var(--text3);padding:11px;font-size:17px;align-self:flex-start;flex-shrink:0}
+
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 72px);right:calc(50% - 224px);width:50px;height:50px;background:var(--accent);border-radius:50%;border:none;color:#fff;font-size:26px;box-shadow:0 4px 20px rgba(107,83,68,0.4);display:flex;align-items:center;justify-content:center;z-index:55}
+@media(max-width:480px){.fab{right:16px}}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(20,16,12,0.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:22px 22px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 36px);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-handle{width:30px;height:3px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-size:19px;font-weight:700;letter-spacing:-0.3px;margin-bottom:18px}
+.fl{margin-bottom:13px}
+.fl label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px;letter-spacing:0.2px}
+.fi{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;font-size:16px;outline:none;color:var(--text);background:var(--surface);min-height:44px}
+.fi:focus{border-color:var(--accent)}
+.fsel-m{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;font-size:16px;outline:none;color:var(--text);background:var(--surface);appearance:none;min-height:44px}
+.btn-row{display:flex;gap:9px;margin-top:7px}
+.btn-ok{flex:2;background:var(--accent);color:#fff;border:none;border-radius:13px;padding:14px;font-size:16px;font-weight:600;min-height:50px}
+.btn-cancel{flex:1;background:var(--surface2);border:none;border-radius:13px;padding:14px;font-size:16px;color:var(--text2);min-height:50px}
+
+.photo-upload{width:100%;height:120px;border:2px dashed var(--border);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:6px;background:var(--surface2);overflow:hidden;position:relative}
+.photo-upload img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.photo-upload-txt{font-size:13px;color:var(--text3);position:relative}
+.photo-ico-up{font-size:24px;position:relative}
+input[type=file]{display:none}
+
+.ing-modal-list{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
+.ing-modal-row{display:flex;gap:7px;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:8px 10px}
+.ing-m-name{flex:1;font-size:14px;font-weight:500}
+.ing-m-amt{font-size:12px;color:var(--text2);white-space:nowrap}
+.ing-m-del{background:none;border:none;color:var(--text3);font-size:16px;padding:0;line-height:1;min-width:28px;min-height:28px}
+.ing-add-row{display:flex;gap:5px;align-items:center}
+.ing-add-plus{width:40px;height:40px;border-radius:var(--r-sm);background:var(--accent);border:none;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ing-add-name{flex:1;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 10px;font-size:14px;outline:none;background:var(--surface);min-width:0;min-height:40px}
+.ing-add-name:focus{border-color:var(--accent)}
+.ing-add-amt{width:56px;flex-shrink:0;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 7px;font-size:14px;outline:none;background:var(--surface);min-height:40px}
+.ing-add-unit{width:65px;flex-shrink:0;border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 4px;font-size:13px;outline:none;background:var(--surface);appearance:none;min-height:40px}
+
+.status-opts{display:flex;flex-direction:column;gap:7px}
+.sopt{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:var(--r-sm);border:1.5px solid var(--border);cursor:pointer;font-size:14px;font-weight:500;min-height:46px}
+.sopt input{accent-color:var(--accent);width:18px;height:18px;flex-shrink:0}
+.sopt:has(input:checked){border-color:var(--accent);background:var(--accent-light)}
+
+.check-row{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:var(--r-sm);border:1.5px solid var(--border);cursor:pointer;font-size:14px;font-weight:500;margin-top:9px;min-height:46px}
+.check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.check-row:has(input:checked){border-color:var(--accent);background:var(--accent-light)}
+
+.filter-section{margin-bottom:16px}
+.filter-section-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px}
+.filter-pills{display:flex;flex-wrap:wrap;gap:7px}
+.fpill{padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);font-size:13px;font-weight:500;color:var(--text2);min-height:36px}
+.fpill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.fpill.f-много.on{background:var(--green);border-color:var(--green)}
+.fpill.f-норм.on{background:var(--yellow);border-color:var(--yellow)}
+.fpill.f-заканчивается.on{background:var(--red);border-color:var(--red)}
+.fpill.f-нет.on{background:var(--text2);border-color:var(--text2)}
+
+.sort-list{display:flex;flex-direction:column;gap:4px}
+.sort-item{display:flex;align-items:center;gap:9px;background:var(--surface2);border-radius:var(--r-sm);padding:10px 13px;min-height:46px}
+.sort-name{flex:1;font-size:15px;font-weight:500}
+.sort-arrows{display:flex;gap:6px}
+.sort-arrows button{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:14px;color:var(--text2);min-width:36px;min-height:36px}
+
+.new-cat-row{display:none;margin-top:7px}
+.new-cat-row input{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-size:15px;outline:none;min-height:42px}
+.new-cat-row input:focus{border-color:var(--accent)}
+
+.shop-search-wrap{position:relative;margin-bottom:13px}
+.shop-search-inp{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;font-size:16px;outline:none;color:var(--text);background:var(--surface);min-height:44px}
+.shop-search-inp:focus{border-color:var(--accent)}
+.shop-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:10;max-height:220px;overflow-y:auto;display:none}
+.shop-dropdown.open{display:block}
+.sdrop-item{padding:11px 13px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:9px;min-height:44px;border-bottom:1px solid var(--surface2)}
+.sdrop-item:last-child{border-bottom:none}
+.sdrop-item:active{background:var(--surface2)}
+.sdrop-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sdrop-name{flex:1;font-weight:500}
+.sdrop-cat{font-size:11px;color:var(--text3)}
+.sdrop-new{color:var(--accent);font-weight:600}
+.selected-chip{display:flex;align-items:center;gap:8px;background:var(--accent-light);border:1.5px solid var(--accent);border-radius:var(--r-sm);padding:9px 13px;margin-bottom:13px}
+.selected-chip-name{flex:1;font-size:14px;font-weight:600;color:var(--accent)}
+.selected-chip-clear{background:none;border:none;color:var(--accent);font-size:16px;padding:0;min-width:24px;min-height:24px}
+
+.pick-list{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto}
+.pick-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--surface2);border-radius:var(--r-sm);cursor:pointer;min-height:52px}
+.pick-item:active{background:var(--border)}
+.pick-photo{width:40px;height:40px;border-radius:9px;object-fit:cover;flex-shrink:0;background:var(--border)}
+.pick-photo-ph{width:40px;height:40px;border-radius:9px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pick-name{flex:1;font-size:15px;font-weight:500}
+.pick-meta{font-size:12px;color:var(--text3)}
+.pick-search{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;font-size:15px;outline:none;margin-bottom:11px;background:var(--surface);min-height:42px}
+
+.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 82px);left:50%;transform:translateX(-50%);background:#1c1814;color:#fff;padding:9px 17px;border-radius:20px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:44px 18px 26px;color:var(--text3)}
+.empty-ico{font-size:44px;margin-bottom:11px;opacity:.6}
+.empty-txt{font-size:15px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="hdr"><div class="hdr-title">Домашний помощник</div></div>
+<div class="content">
+  <div class="tab active" id="tab-stock">
+    <div class="search-row">
+      <div class="search">
+        <svg class="ns" style="width:15px;height:15px;color:var(--text3)" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="Поиск…" id="srchInp" oninput="renderStock()">
+      </div>
+      <button class="icon-btn" id="filterBtn" onclick="openFilters()">
+        <svg class="ns" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>Фильтры
+      </button>
+      <button class="icon-btn" onclick="openCatSort()" title="Порядок категорий">
+        <svg class="ns" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><polyline points="8 3 3 9 8 15"/></svg>
+      </button>
+    </div>
+    <div id="stockList"></div>
+  </div>
+
+  <div class="tab" id="tab-shop">
+    <div class="total-wrap">
+      <div class="total-lbl">Итого к покупке</div>
+      <div class="total-amt" id="totalAmt">0 ₽</div>
+      <div class="total-row">
+        <div class="total-count" id="totalCnt"></div>
+        <button class="total-btn" onclick="clearChecked()">✓ Куплено</button>
+        <button class="total-btn danger" onclick="clearAllCart()">🗑 Очистить</button>
+      </div>
+    </div>
+    <div class="list-acts">
+      <button class="list-act" onclick="addLowToList()">+ Нет и заканчивается</button>
+      <button class="list-act" onclick="openAddShopM()">+ Вручную</button>
+    </div>
+    <div id="shopList"></div>
+  </div>
+
+  <div class="tab" id="tab-meals">
+    <div class="meal-subtabs">
+      <button class="mst active" onclick="switchMT('recipes',this)">Рецепты</button>
+      <button class="mst" onclick="switchMT('planned',this)">Планирую</button>
+      <button class="mst" onclick="switchMT('cooked',this)">Готово</button>
+    </div>
+    <div id="mealContent"></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('stock',this)" id="nb-stock">
+    <svg class="ns" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+    <span>Запасы</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('shop',this)" id="nb-shop">
+    <svg class="ns" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <span>Покупки</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('meals',this)" id="nb-meals">
+    <svg class="ns" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+    <span>Блюда</span>
+  </button>
+</nav>
+<button class="fab" id="fabBtn" onclick="fabClick()">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- ДОБАВИТЬ ТОВАР -->
+<div class="overlay" id="addItemM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Добавить товар</div>
+    <div class="fl"><label>Название</label><input class="fi" id="niName" placeholder="например, Оливки"></div>
+    <div class="fl"><label>Категория</label>
+      <select class="fsel-m" id="niCat" onchange="onCatChange('niCat','newCatRow')"></select>
+      <div class="new-cat-row" id="newCatRow"><input id="newCatInp" placeholder="Название новой категории"></div>
+    </div>
+    <div class="fl"><label>Цена (₽)</label><input class="fi" id="niPrice" type="number" placeholder="0"></div>
+    <div class="btn-row"><button class="btn-cancel" onclick="closeModal('addItemM')">Отмена</button><button class="btn-ok" onclick="saveItem()">Добавить</button></div>
+  </div>
+</div>
+
+<!-- РЕДАКТИРОВАТЬ ТОВАР -->
+<div class="overlay" id="editItemM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Редактировать товар</div>
+    <div class="fl"><label>Название</label><input class="fi" id="eiName" placeholder="Название"></div>
+    <div class="fl"><label>Категория</label>
+      <select class="fsel-m" id="eiCat" onchange="onCatChange('eiCat','eiNewCatRow')"></select>
+      <div class="new-cat-row" id="eiNewCatRow"><input id="eiNewCatInp" placeholder="Новая категория"></div>
+    </div>
+    <div class="btn-row"><button class="btn-cancel" onclick="closeModal('editItemM')">Отмена</button><button class="btn-ok" onclick="saveEditItem()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ДОБАВИТЬ В КОРЗИНУ -->
+<div class="overlay" id="addShopM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Добавить в список</div>
+    <div class="fl"><label>Найти из Запасов или создать</label>
+      <div class="shop-search-wrap">
+        <input type="text" class="shop-search-inp" id="shopSearchInp" placeholder="Начните вводить название…" oninput="onShopSearch()" autocomplete="off">
+        <div class="shop-dropdown" id="shopDropdown"></div>
+      </div>
+      <div id="shopSelectedChip" style="display:none"></div>
+    </div>
+    <div id="shopFormFields" style="display:none">
+      <div class="fl"><label>Количество</label>
+        <div style="display:flex;gap:7px">
+          <input class="fi" id="sAmt" type="number" placeholder="—" style="flex:1">
+          <select class="fsel-m" id="sUnit" style="flex:1"><option>г</option><option>кг</option><option selected>шт</option><option>мл</option><option>л</option><option>ст.л.</option><option>ч.л.</option><option>упак</option></select>
+        </div>
+      </div>
+      <div class="fl"><label>Цена (₽)</label><input class="fi" id="sPrice" type="number" placeholder="0"></div>
+      <div id="shopNewStockRow" style="display:none">
+        <label class="check-row"><input type="checkbox" id="saveNewToStock" checked><span>Сохранить в Запасы</span></label>
+        <div class="fl" style="margin-top:10px" id="shopNewCatWrap">
+          <label>Категория</label>
+          <select class="fsel-m" id="sNewCat" onchange="onCatChange('sNewCat','sNewCatNewRow')"></select>
+          <div class="new-cat-row" id="sNewCatNewRow"><input id="sNewCatNewInp" placeholder="Новая категория"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn-cancel" onclick="closeModal('addShopM')">Отмена</button><button class="btn-ok" id="shopAddBtn" onclick="saveShopItem()" disabled style="opacity:.5">Добавить</button></div>
+  </div>
+</div>
+
+<!-- РЕЦЕПТ -->
+<div class="overlay" id="addRecipeM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title" id="recipeMTitle">Новый рецепт</div>
+    <div class="fl"><label>Фото блюда</label>
+      <div class="photo-upload" id="photoUpload" onclick="document.getElementById('photoFile').click()">
+        <span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>
+      </div>
+      <input type="file" id="photoFile" accept="image/*" onchange="loadPhoto(event,'photoUpload')">
+    </div>
+    <div class="fl"><label>Название блюда</label><input class="fi" id="rName" placeholder="например, Борщ"></div>
+    <div class="fl"><label>Ингредиенты</label>
+      <div class="ing-modal-list" id="ingList"></div>
+      <div class="ing-add-row">
+        <button class="ing-add-plus" onclick="addIng()">+</button>
+        <input class="ing-add-name" id="ingName" placeholder="Ингредиент…" onkeydown="if(event.key==='Enter'){event.preventDefault();addIng()}">
+        <input class="ing-add-amt" id="ingAmt" type="number" min="0" placeholder="Кол.">
+        <select class="ing-add-unit" id="ingUnit"><option>г</option><option>кг</option><option>шт</option><option>мл</option><option>л</option><option>ст.л.</option><option>ч.л.</option><option>упак</option><option>по вкусу</option></select>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn-cancel" onclick="closeModal('addRecipeM')">Отмена</button><button class="btn-ok" onclick="saveRecipe()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ВЫБРАТЬ РЕЦЕПТ -->
+<div class="overlay" id="pickRecipeM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Выбрать рецепт</div>
+    <input class="pick-search" id="pickSearch" placeholder="Поиск…" oninput="renderPickList()">
+    <div class="pick-list" id="pickList"></div>
+    <div class="btn-row" style="margin-top:12px"><button class="btn-cancel" style="flex:1" onclick="closeModal('pickRecipeM')">Закрыть</button></div>
+  </div>
+</div>
+
+<!-- БЛЮДО ГОТОВО -->
+<div class="overlay" id="markCookedM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Блюдо готово!</div>
+    <div style="font-size:15px;color:var(--text2);margin-bottom:16px" id="cookedMealName"></div>
+    <div class="fl"><label>Статус</label>
+      <div class="status-opts">
+        <label class="sopt"><input type="radio" name="cookedSt" value="fresh" checked> 🍽 Готово к употреблению</label>
+        <label class="sopt"><input type="radio" name="cookedSt" value="frozen"> ❄️ Готово и заморожено</label>
+        <label class="sopt"><input type="radio" name="cookedSt" value="semi"> 🧊 Полуфабрикат</label>
+      </div>
+    </div>
+    <div class="fl"><label>Количество порций</label><input class="fi" id="cookedPortions" type="number" min="1" value="1"></div>
+    <div class="fl"><label>Заметки</label><input class="fi" id="cookedNotes" placeholder="Срок хранения, особенности…"></div>
+    <div class="btn-row"><button class="btn-cancel" onclick="closeModal('markCookedM')">Отмена</button><button class="btn-ok" onclick="saveCookedDish()">Сохранить</button></div>
+  </div>
+</div>
+
+<!-- ФИЛЬТРЫ -->
+<div class="overlay" id="filterM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Фильтры</div>
+    <div class="filter-section"><div class="filter-section-title">Наличие</div><div class="filter-pills" id="fStockPills"></div></div>
+    <div class="filter-section"><div class="filter-section-title">Категория</div><div class="filter-pills" id="fCatPills"></div></div>
+    <div class="btn-row"><button class="btn-cancel" onclick="resetFilters()">Сбросить</button><button class="btn-ok" onclick="applyFilters()">Применить</button></div>
+  </div>
+</div>
+
+<!-- СОРТИРОВКА КАТЕГОРИЙ -->
+<div class="overlay" id="catSortM">
+  <div class="modal"><div class="modal-handle"></div><div class="modal-title">Порядок категорий</div>
+    <div class="sort-list" id="sortList"></div>
+    <div class="btn-row" style="margin-top:14px"><button class="btn-cancel" onclick="closeModal('catSortM')">Закрыть</button><button class="btn-ok" onclick="saveCatOrder()">Сохранить</button></div>
+  </div>
+</div>
+
+<script>
+const BASE_CATS=['Хозяйство кухни','Крупы и бобовые','Мука и выпечка','Специи','Орехи и семена','Соусы и масла','Продукты','Овощи','Мясо','Чай и кофе','Ванная — чистка','Ванная — уход','Аптека','Прочее'];
+const DEFS=[
+  {n:'Посудомоечные таблетки',c:'Хозяйство кухни'},{n:'Средство для мытья печки',c:'Хозяйство кухни'},{n:'Губки',c:'Хозяйство кухни'},{n:'Сетка для слива',c:'Хозяйство кухни'},{n:'Перчатки для уборки',c:'Хозяйство кухни'},{n:'Пакеты для запекания',c:'Хозяйство кухни'},{n:'Пакеты обычные',c:'Хозяйство кухни'},{n:'Пакеты для заморозки',c:'Хозяйство кухни'},{n:'Бумага пергаментная',c:'Хозяйство кухни'},{n:'Фольга',c:'Хозяйство кухни'},{n:'Плёнка полиэтиленовая',c:'Хозяйство кухни'},{n:'Формочки для пирожных',c:'Хозяйство кухни'},{n:'Пакеты для крема',c:'Хозяйство кухни'},{n:'Ватные палочки',c:'Хозяйство кухни'},
+  {n:'Ромашка заварная',c:'Чай и кофе'},{n:'Какао',c:'Чай и кофе'},{n:'Пакеты для чая',c:'Хозяйство кухни'},
+  {n:'Гречка',c:'Крупы и бобовые'},{n:'Рис',c:'Крупы и бобовые'},{n:'Булгур',c:'Крупы и бобовые'},{n:'Нут',c:'Крупы и бобовые'},{n:'Горох',c:'Крупы и бобовые'},{n:'Овсянка',c:'Крупы и бобовые'},{n:'Быстрый завтрак',c:'Крупы и бобовые'},{n:'Манка',c:'Крупы и бобовые'},{n:'Макароны',c:'Крупы и бобовые'},{n:'Макароны спагетти',c:'Крупы и бобовые'},{n:'Вермишель',c:'Крупы и бобовые'},{n:'Чамак',c:'Крупы и бобовые'},{n:'Сухари панировочные',c:'Крупы и бобовые'},
+  {n:'Мука пшеничная',c:'Мука и выпечка'},{n:'Мука рисовая',c:'Мука и выпечка'},{n:'Мука ржаная',c:'Мука и выпечка'},{n:'Сахар',c:'Мука и выпечка'},{n:'Соль',c:'Мука и выпечка'},{n:'Сода',c:'Мука и выпечка'},{n:'Разрыхлитель',c:'Мука и выпечка'},{n:'Ванилин',c:'Мука и выпечка'},{n:'Корица',c:'Мука и выпечка'},{n:'Агар-агар',c:'Мука и выпечка'},{n:'Крахмал кукурузный',c:'Мука и выпечка'},
+  {n:'Лавровый лист',c:'Специи'},{n:'Паприка копчёная',c:'Специи'},{n:'Зира',c:'Специи'},{n:'Бальзамические травы',c:'Специи'},{n:'Дашида говядина',c:'Специи'},{n:'Кунжут',c:'Специи'},{n:'Перец горошком',c:'Специи'},
+  {n:'Орехи кедровые',c:'Орехи и семена'},{n:'Семечки тыквенные',c:'Орехи и семена'},
+  {n:'Масло растительное',c:'Соусы и масла'},{n:'Масло оливковое',c:'Соусы и масла'},{n:'Масло сливочное',c:'Соусы и масла'},{n:'Уксус',c:'Соусы и масла'},{n:'Винный уксус',c:'Соусы и масла'},{n:'Томатная паста',c:'Соусы и масла'},{n:'Майонез',c:'Соусы и масла'},{n:'Кетчуп',c:'Соусы и масла'},{n:'Соевый соус',c:'Соусы и масла'},
+  {n:'Яйца',c:'Продукты'},{n:'Лук',c:'Продукты'},{n:'Чеснок',c:'Продукты'},{n:'Морковь',c:'Продукты'},{n:'Мёд',c:'Продукты'},{n:'Корм кошачий',c:'Прочее'},
+  {n:'Помидоры',c:'Овощи'},{n:'Огурцы',c:'Овощи'},{n:'Капуста белокочанная',c:'Овощи'},{n:'Капуста брокколи',c:'Овощи'},{n:'Капуста цветная',c:'Овощи'},{n:'Картошка',c:'Овощи'},
+  {n:'Куриная тушка',c:'Мясо'},{n:'Говядина',c:'Мясо'},{n:'Индейка',c:'Мясо'},{n:'Свинина',c:'Мясо'},
+  {n:'Парацетамол',c:'Аптека'},{n:'Цитрамон',c:'Аптека'},{n:'Дюфастон',c:'Аптека'},{n:'Ринонорм',c:'Аптека'},{n:'Тантумверде',c:'Аптека'},{n:'Ринофлуимуцил',c:'Аптека'},{n:'Ношпа',c:'Аптека'},{n:'Нурофен детский',c:'Аптека'},{n:'Нурофен взрослый',c:'Аптека'},{n:'Аквамарис',c:'Аптека'},{n:'Ушные капли',c:'Аптека'},{n:'Капли в глаза',c:'Аптека'},{n:'Омез',c:'Аптека'},{n:'Зодак капли',c:'Аптека'},{n:'Зодак таблетки',c:'Аптека'},
+  {n:'Fairy (средство для посуды)',c:'Ванная — чистка'},{n:'Средство для ванны',c:'Ванная — чистка'},{n:'Средство для зеркал',c:'Ванная — чистка'},{n:'Средство для унитаза',c:'Ванная — чистка'},{n:'Средство для унитаза (мощное)',c:'Ванная — чистка'},{n:'Стиральный порошок',c:'Ванная — чистка'},{n:'Кондиционер для белья',c:'Ванная — чистка'},
+  {n:'Туалетная бумага',c:'Ванная — уход'},{n:'Липкий каток',c:'Ванная — уход'},{n:'Пена для бритья',c:'Ванная — уход'},{n:'Бритва (мне)',c:'Ванная — уход'},{n:'Бритва (Андрею)',c:'Ванная — уход'},{n:'Ватные диски',c:'Ванная — уход'},{n:'Освежитель воздуха',c:'Ванная — уход'},{n:'Тампоны',c:'Ванная — уход'},{n:'Мыло кусковое',c:'Ванная — уход'},{n:'Мыло жидкое',c:'Ванная — уход'},{n:'Зубная паста',c:'Ванная — уход'},{n:'Зубная паста Мии',c:'Ванная — уход'},{n:'Крем для Мии',c:'Ванная — уход'},{n:'Шампунь',c:'Ванная — уход'},{n:'Бальзам',c:'Ванная — уход'},{n:'Умывалка',c:'Ванная — уход'},{n:'Тоник',c:'Ванная — уход'},
+];
+
+function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){showToast('Ошибка сохранения')}}
+function uid(){return 'x'+Math.random().toString(36).slice(2,9)}
+function saveAll(){sv('itm9',items);sv('shl9',shopList);sv('mls9',meals);sv('ckd9',cooked);sv('ucat9',customCats);sv('cord9',catOrder)}
+
+let items=ld('itm9',null);
+if(!items){
+  items=DEFS.map((d,i)=>({id:'i'+i,name:d.n,cat:d.c,stock:'норм',price:null,inList:false,notes:'',url:'',priceHistory:[]}));
+  sv('itm9',items);
+}
+items.forEach(it=>{if(!it.notes)it.notes='';if(!it.url)it.url='';if(!it.priceHistory)it.priceHistory=[];});
+
+let shopList=ld('shl9',[]);
+let meals=ld('mls9',[]);
+let cooked=ld('ckd9',[]);
+let customCats=ld('ucat9',[]);
+let catOrder=ld('cord9',[]);
+
+function allCats(){
+  const all=[...BASE_CATS,...customCats.filter(c=>!BASE_CATS.includes(c))];
+  if(catOrder.length){const o=catOrder.filter(c=>all.includes(c));return[...o,...all.filter(c=>!o.includes(c))];}
+  return all;
+}
+function usedCats(){return[...new Set(items.map(i=>i.cat).filter(Boolean))]}
+function findItem(name){return items.find(i=>i.name.toLowerCase().trim()===name.toLowerCase().trim())}
+function findItem2(id){return items.find(i=>i.id===id)}
+
+let curTab='stock',curMT='recipes',stockFilt='all',catFilt='all',tmpSF='all',tmpCF='all';
+let editingId=null,cookingId=null,editingItemId=null;
+let tmpIngs=[],tmpPhoto=null,tmpCatOrder=[];
+let shopSelectedItem=null;
+
+function switchTab(t,btn){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');btn.classList.add('active');curTab=t;
+  if(t==='stock')renderStock();if(t==='shop')renderShop();if(t==='meals')renderMeals();
+}
+function switchMT(t,btn){
+  document.querySelectorAll('.mst').forEach(x=>x.classList.remove('active'));btn.classList.add('active');curMT=t;
+  document.getElementById('fabBtn').style.display=t==='cooked'?'none':'';
+  renderMeals();
+}
+
+function openFilters(){
+  tmpSF=stockFilt;tmpCF=catFilt;
+  document.getElementById('fStockPills').innerHTML=[{v:'all',l:'Все'},{v:'много',l:'Много'},{v:'норм',l:'Норм'},{v:'заканчивается',l:'Заканч.'},{v:'нет',l:'Нет'}].map(({v,l})=>`<button class="fpill f-${v}${tmpSF===v?' on':''}" onclick="setTmpSF('${v}',this)">${l}</button>`).join('');
+  document.getElementById('fCatPills').innerHTML=['all',...usedCats()].map(c=>`<button class="fpill${tmpCF===c?' on':''}" onclick="setTmpCF('${escQ(c)}',this)">${c==='all'?'Все':c}</button>`).join('');
+  openModal('filterM');
+}
+function setTmpSF(v,btn){tmpSF=v;document.querySelectorAll('#fStockPills .fpill').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+function setTmpCF(v,btn){tmpCF=v;document.querySelectorAll('#fCatPills .fpill').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+function applyFilters(){stockFilt=tmpSF;catFilt=tmpCF;document.getElementById('filterBtn').classList.toggle('active',stockFilt!=='all'||catFilt!=='all');closeModal('filterM');renderStock();}
+function resetFilters(){stockFilt='all';catFilt='all';document.getElementById('filterBtn').classList.remove('active');closeModal('filterM');renderStock();}
+
+function openCatSort(){tmpCatOrder=[...allCats()];renderSortList();openModal('catSortM');}
+function renderSortList(){document.getElementById('sortList').innerHTML=tmpCatOrder.map((c,i)=>`<div class="sort-item"><span class="sort-name">${escH(c)}</span><div class="sort-arrows">${i>0?`<button onclick="moveCat(${i},-1)">↑</button>`:'<button disabled style="opacity:.2">↑</button>'}${i<tmpCatOrder.length-1?`<button onclick="moveCat(${i},1)">↓</button>`:'<button disabled style="opacity:.2">↓</button>'}</div></div>`).join('');}
+function moveCat(i,d){const j=i+d;if(j<0||j>=tmpCatOrder.length)return;[tmpCatOrder[i],tmpCatOrder[j]]=[tmpCatOrder[j],tmpCatOrder[i]];renderSortList();}
+function saveCatOrder(){catOrder=[...tmpCatOrder];saveAll();closeModal('catSortM');renderStock();}
+
+function renderStock(){
+  const q=(document.getElementById('srchInp').value||'').toLowerCase().trim();
+  let list=items;
+  if(q)list=list.filter(i=>i.name.toLowerCase().includes(q));
+  if(stockFilt!=='all')list=list.filter(i=>i.stock===stockFilt);
+  if(catFilt!=='all')list=list.filter(i=>i.cat===catFilt);
+  const cats=allCats();const grp={};cats.forEach(c=>grp[c]=[]);
+  list.forEach(i=>{if(grp[i.cat])grp[i.cat].push(i);else{grp['Прочее']||(grp['Прочее']=[]);grp['Прочее'].push(i);}});
+  let h='';
+  cats.forEach(cat=>{
+    const g=grp[cat];if(!g||!g.length)return;
+    h+=`<div class="sec"><div class="sec-title">${escH(cat)}</div>`;
+    g.forEach(it=>{
+      const hist=(it.priceHistory||[]).slice(0,4).map(p=>`<div class="price-hist-row"><span>${fmtDate(p.date)}</span><span>${p.price}₽</span></div>`).join('');
+      h+=`<div class="card" id="c-${it.id}">
+        <div class="item-row" onclick="toggleD1('${it.id}')">
+          <div class="dot ${it.stock}"></div>
+          <div class="item-name">${escH(it.name)}</div>
+          <div class="item-price${it.price?' set':''}">${it.price?it.price+'₽':'· · ·'}</div>
+          <span class="chev" id="chv-${it.id}">›</span>
+        </div>
+        <div class="item-d1" id="d1-${it.id}">
+          <div class="stock-pills">${['много','норм','заканчивается','нет'].map(s=>`<button class="spill${it.stock===s?' a-'+s:''}" onclick="setStock('${it.id}','${s}')">${slbl(s)}</button>`).join('')}</div>
+          <div class="d1-actions">
+            <button class="d1-btn ${it.inList?'d1-list in':'d1-list'}" onclick="toggleList('${it.id}')">${it.inList?'✓ В списке':'+ В список'}</button>
+            <button class="d1-btn d1-more" onclick="toggleD2('${it.id}')">
+              <svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>Подробнее
+            </button>
+            <button class="d1-btn d1-edit" onclick="openEditItem('${it.id}')">✏️</button>
+          </div>
+        </div>
+        <div class="item-d2" id="d2-${it.id}">
+          <div class="d2-field">
+            <div class="d2-lbl">Цена</div>
+            <input class="d2-inp" type="number" placeholder="₽" value="${it.price||''}" id="p-${it.id}">
+            ${hist?`<div class="price-hist">${hist}</div>`:''}
+          </div>
+          <div class="d2-field">
+            <div class="d2-lbl">Ссылка (маркетплейс)</div>
+            <div class="d2-url-row">
+              <input class="d2-url-inp" id="url-${it.id}" value="${escH(it.url||'')}" placeholder="https://…">
+              ${it.url?`<a href="${escH(it.url)}" target="_blank" rel="noopener"><button class="d2-url-open">🔗</button></a>`:''}
+            </div>
+          </div>
+          <div class="d2-field">
+            <div class="d2-lbl">Заметки</div>
+            <textarea class="d2-notes" id="nt-${it.id}" placeholder="Магазин, особенности, сравнение цен…">${escH(it.notes||'')}</textarea>
+          </div>
+          <button class="d2-save-all" onclick="saveAllD2('${it.id}')">Сохранить</button>
+          <button class="d2-del" onclick="delItem('${it.id}')">Удалить товар</button>
+        </div>
+      </div>`;
+    });h+='</div>';
+  });
+  if(!h)h=emptyState('🔍','Ничего не найдено');
+  document.getElementById('stockList').innerHTML=h;
+}
+
+function slbl(s){return{много:'Много',норм:'Норм',заканчивается:'Заканч.',нет:'Нет'}[s]}
+
+function toggleD1(id){
+  const d=document.getElementById('d1-'+id),ch=document.getElementById('chv-'+id);
+  const was=d.classList.contains('open');
+  document.querySelectorAll('.item-d1.open').forEach(e=>{e.classList.remove('open');const p=e.id.slice(3);const c=document.getElementById('chv-'+p);if(c)c.classList.remove('open');});
+  document.querySelectorAll('.item-d2.open').forEach(e=>e.classList.remove('open'));
+  if(!was){d.classList.add('open');ch.classList.add('open');}
+}
+function toggleD2(id){document.getElementById('d2-'+id).classList.toggle('open');}
+
+// Single save for all level-2 fields
+function saveAllD2(id){
+  const it=findItem2(id);if(!it)return;
+  const v=parseFloat(document.getElementById('p-'+id).value);
+  const np=v>0?v:null;
+  if(np&&np!==it.price){it.priceHistory=it.priceHistory||[];it.priceHistory.unshift({date:today(),price:np});if(it.priceHistory.length>8)it.priceHistory=it.priceHistory.slice(0,8);}
+  it.price=np;
+  shopList.filter(s=>s.fromId===id).forEach(s=>s.price=np);
+  it.url=document.getElementById('url-'+id).value.trim();
+  it.notes=document.getElementById('nt-'+id).value.trim();
+  saveAll();renderStock();showToast('Сохранено');
+}
+
+function setStock(id,s){
+  const it=findItem2(id);if(!it)return;
+  it.stock=s;
+  if(s==='заканчивается'||s==='нет'){it.inList=true;if(!shopList.some(x=>!x.checked&&x.fromId===id))shopList.push({id:uid(),name:it.name,price:it.price,amt:'',unit:'',checked:false,fromId:id});}
+  if(s==='много'||s==='норм'){it.inList=false;shopList=shopList.filter(x=>x.fromId!==id);}
+  saveAll();renderStock();
+}
+function toggleList(id){
+  const it=findItem2(id);if(!it)return;
+  if(it.inList){it.inList=false;shopList=shopList.filter(s=>s.fromId!==id);}
+  else{it.inList=true;if(!shopList.some(x=>!x.checked&&x.fromId===id))shopList.push({id:uid(),name:it.name,price:it.price,amt:'',unit:'',checked:false,fromId:id});}
+  saveAll();renderStock();
+}
+function delItem(id){if(!confirm('Удалить товар?'))return;items=items.filter(i=>i.id!==id);shopList=shopList.filter(s=>s.fromId!==id);saveAll();renderStock();}
+
+function openEditItem(id){
+  const it=findItem2(id);if(!it)return;
+  editingItemId=id;
+  document.getElementById('eiName').value=it.name;
+  document.getElementById('eiCat').innerHTML=allCats().map(c=>`<option value="${escH(c)}"${it.cat===c?' selected':''}>${escH(c)}</option>`).join('')+'<option value="__new__">➕ Новая…</option>';
+  document.getElementById('eiNewCatRow').style.display='none';
+  openModal('editItemM');
+}
+function saveEditItem(){
+  const it=findItem2(editingItemId);if(!it)return;
+  const name=document.getElementById('eiName').value.trim();if(!name)return;
+  let cat=document.getElementById('eiCat').value;
+  if(cat==='__new__'){cat=document.getElementById('eiNewCatInp').value.trim();if(!cat)return;if(!customCats.includes(cat))customCats.push(cat);}
+  it.name=name;it.cat=cat;
+  saveAll();closeModal('editItemM');renderStock();showToast('Товар обновлён');
+}
+
+function addLowToList(){
+  items.filter(i=>i.stock==='заканчивается'||i.stock==='нет').forEach(it=>{
+    if(!shopList.some(s=>!s.checked&&s.fromId===it.id)){it.inList=true;shopList.push({id:uid(),name:it.name,price:it.price,amt:'',unit:'',checked:false,fromId:it.id});}
+  });
+  saveAll();renderShop();showToast('Список обновлён');
+}
+function addToCartRaw(name,price,amt,unit,fromMealId){
+  const key=name.toLowerCase().trim();
+  const ex=shopList.find(s=>!s.checked&&s.name.toLowerCase().trim()===key);
+  if(ex){
+    const a=parseFloat(amt);
+    if(a>0){const ea=parseFloat(ex.amt);if(ex.unit===unit&&ea>0){ex.amt=(ea+a).toString();}else if(!ea||parseFloat(ea)===0){ex.amt=String(a);ex.unit=unit;}else{ex.extraAmts=ex.extraAmts||[];ex.extraAmts.push({amt:String(a),unit});}}
+    if(!ex.price&&price)ex.price=price;return;
+  }
+  shopList.push({id:uid(),name,price,amt:amt?String(amt):'',unit:unit||'',checked:false,fromMealId});
+}
+function renderShop(){
+  const tot=shopList.filter(s=>!s.checked&&s.price).reduce((a,s)=>a+(parseFloat(s.price)||0),0);
+  const unc=shopList.filter(s=>!s.checked).length;
+  document.getElementById('totalAmt').textContent=tot?tot.toLocaleString('ru')+'₽':'0 ₽';
+  document.getElementById('totalCnt').textContent=unc?unc+' '+plr(unc,'товар','товара','товаров'):'Список пуст';
+  if(!shopList.length){document.getElementById('shopList').innerHTML=emptyState('🛒','Список пуст');return;}
+  let h='';
+  [...shopList].sort((a,b)=>a.checked-b.checked).forEach(s=>{
+    let a=s.amt&&parseFloat(s.amt)>0?s.amt+(s.unit?' '+s.unit:''):'';
+    if(s.extraAmts)s.extraAmts.forEach(e=>{a+=(a?' + ':'')+e.amt+(e.unit?' '+e.unit:'');});
+    h+=`<div class="shop-item">
+      <div class="shop-chk${s.checked?' on':''}" onclick="chkShop('${s.id}')">${s.checked?'✓':''}</div>
+      <div class="shop-name-col"><div class="shop-name-text${s.checked?' done':''}">${escH(s.name)}</div>${s.fromMealId||s.fromId?`<div class="shop-sub">${s.fromMealId?'из рецепта':'из Запасов'}</div>`:''}</div>
+      <div class="shop-qty-col"><input class="shop-qty-inp" value="${escH(s.amt||'')}" placeholder="—" onchange="updateCartAmt('${s.id}',this.value)"><span class="shop-qty-unit">${escH(s.unit||'')}</span></div>
+      <div class="shop-price-col">${s.price?s.price+'₽':'—'}</div>
+      <button class="shop-del" onclick="delShop('${s.id}')">×</button>
+    </div>`;
+  });
+  document.getElementById('shopList').innerHTML=h;
+}
+function updateCartAmt(id,val){const s=shopList.find(x=>x.id===id);if(s)s.amt=val;saveAll();}
+function chkShop(id){const s=shopList.find(x=>x.id===id);if(!s)return;s.checked=!s.checked;if(s.checked&&s.fromId){const it=findItem2(s.fromId);if(it){it.stock='норм';it.inList=false;}}saveAll();renderShop();}
+function delShop(id){const s=shopList.find(x=>x.id===id);if(s&&s.fromId){const it=findItem2(s.fromId);if(it)it.inList=false;}shopList=shopList.filter(x=>x.id!==id);saveAll();renderShop();}
+function clearChecked(){shopList.filter(s=>s.checked&&s.fromId).forEach(s=>{const it=findItem2(s.fromId);if(it){it.stock='норм';it.inList=false;}});shopList=shopList.filter(s=>!s.checked);saveAll();renderShop();}
+function clearAllCart(){if(!confirm('Очистить всю корзину?'))return;items.forEach(it=>it.inList=false);shopList=[];saveAll();renderShop();showToast('Корзина очищена');}
+
+function openAddShopM(){
+  shopSelectedItem=null;
+  document.getElementById('shopSearchInp').value='';
+  document.getElementById('shopDropdown').innerHTML='';document.getElementById('shopDropdown').classList.remove('open');
+  document.getElementById('shopSelectedChip').style.display='none';
+  document.getElementById('shopFormFields').style.display='none';
+  document.getElementById('shopNewStockRow').style.display='none';
+  document.getElementById('sAmt').value='';document.getElementById('sPrice').value='';
+  document.getElementById('shopAddBtn').disabled=true;document.getElementById('shopAddBtn').style.opacity='.5';
+  openModal('addShopM');
+  setTimeout(()=>document.getElementById('shopSearchInp').focus(),150);
+}
+function onShopSearch(){
+  const q=document.getElementById('shopSearchInp').value.trim();
+  if(!q){document.getElementById('shopDropdown').classList.remove('open');return;}
+  const dcol={много:'var(--green)',норм:'var(--yellow)',заканчивается:'var(--red)',нет:'var(--border)'};
+  const matches=items.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  let h=matches.map(it=>`<div class="sdrop-item" onclick="selectShopItem('${it.id}')"><div class="sdrop-dot" style="background:${dcol[it.stock]||'var(--border)'}"></div><span class="sdrop-name">${escH(it.name)}</span><span class="sdrop-cat">${escH(it.cat)}</span></div>`).join('');
+  if(!items.find(i=>i.name.toLowerCase().trim()===q.toLowerCase().trim()))h+=`<div class="sdrop-item" onclick="selectNewShopItem('${escQ(q)}')"><span class="sdrop-new">➕ Создать: «${escH(q)}»</span></div>`;
+  document.getElementById('shopDropdown').innerHTML=h;document.getElementById('shopDropdown').classList.add('open');
+}
+function selectShopItem(id){
+  const it=findItem2(id);if(!it)return;
+  shopSelectedItem={fromStock:true,item:it};
+  document.getElementById('shopSearchInp').value='';document.getElementById('shopDropdown').classList.remove('open');
+  document.getElementById('shopSelectedChip').style.display='flex';
+  document.getElementById('shopSelectedChip').innerHTML=`<span class="selected-chip-name">${escH(it.name)}</span><span style="font-size:12px;color:var(--text2)">${it.price?it.price+'₽':''}</span><button class="selected-chip-clear" onclick="clearShopSelection()">×</button>`;
+  document.getElementById('shopSelectedChip').className='selected-chip';
+  document.getElementById('sPrice').value=it.price||'';
+  document.getElementById('shopFormFields').style.display='block';document.getElementById('shopNewStockRow').style.display='none';
+  document.getElementById('shopAddBtn').disabled=false;document.getElementById('shopAddBtn').style.opacity='1';
+}
+function selectNewShopItem(name){
+  shopSelectedItem={fromStock:false,newName:name};
+  document.getElementById('shopSearchInp').value='';document.getElementById('shopDropdown').classList.remove('open');
+  document.getElementById('shopSelectedChip').style.display='flex';
+  document.getElementById('shopSelectedChip').innerHTML=`<span class="selected-chip-name">➕ ${escH(name)}</span><button class="selected-chip-clear" onclick="clearShopSelection()">×</button>`;
+  document.getElementById('shopSelectedChip').className='selected-chip';
+  document.getElementById('shopFormFields').style.display='block';document.getElementById('shopNewStockRow').style.display='block';
+  document.getElementById('sNewCat').innerHTML=allCats().map(c=>`<option>${escH(c)}</option>`).join('')+'<option value="__new__">➕ Новая…</option>';
+  document.getElementById('shopAddBtn').disabled=false;document.getElementById('shopAddBtn').style.opacity='1';
+}
+function clearShopSelection(){
+  shopSelectedItem=null;
+  document.getElementById('shopSelectedChip').style.display='none';document.getElementById('shopFormFields').style.display='none';
+  document.getElementById('shopAddBtn').disabled=true;document.getElementById('shopAddBtn').style.opacity='.5';
+  document.getElementById('shopSearchInp').value='';document.getElementById('shopSearchInp').focus();
+}
+function saveShopItem(){
+  if(!shopSelectedItem)return;
+  const amt=document.getElementById('sAmt').value||'';const unit=document.getElementById('sUnit').value;
+  const p=parseFloat(document.getElementById('sPrice').value)||null;
+  let name,price;
+  if(shopSelectedItem.fromStock){name=shopSelectedItem.item.name;price=p||shopSelectedItem.item.price;}
+  else{
+    name=shopSelectedItem.newName;price=p;
+    if(document.getElementById('saveNewToStock').checked&&!findItem(name)){
+      let cat=document.getElementById('sNewCat').value;
+      if(cat==='__new__'){cat=document.getElementById('sNewCatNewInp').value.trim()||'Прочее';if(cat&&!customCats.includes(cat))customCats.push(cat);}
+      items.push({id:uid(),name,cat,stock:'нет',price,inList:true,notes:'',url:'',priceHistory:[]});showToast('Добавлено в Запасы: '+name);
+    }
+  }
+  addToCartRaw(name,price,amt,unit,null);saveAll();closeModal('addShopM');renderShop();
+}
+
+function renderMeals(){
+  let h='';
+  if(curMT==='recipes'){const list=meals.filter(m=>!m.type||m.type==='recipe');if(!list.length)h=emptyState('📖','Добавьте первый рецепт кнопкой +');else list.forEach(m=>h+=recipeCard(m,'recipe'));}
+  else if(curMT==='planned'){const list=meals.filter(m=>m.type==='planned');if(!list.length)h=emptyState('📅','Нажмите + чтобы выбрать рецепт');else list.forEach(m=>h+=recipeCard(m,'planned'));}
+  else{if(!cooked.length)h=emptyState('🍽','Готовые блюда появятся здесь');else cooked.forEach(c=>h+=cookedCard(c));}
+  document.getElementById('mealContent').innerHTML=h;
+}
+function checkIngs(ings){let missing=0,low=0,ok=0;(ings||[]).forEach(ing=>{const it=findItem(ing.name);if(!it||it.stock==='нет')missing++;else if(it.stock==='заканчивается')low++;else ok++;});return{missing,low,ok};}
+function buildIngCheck(ings,mealId){
+  if(!ings||!ings.length)return '<div style="color:var(--text3);font-size:13px;padding:8px 0">Ингредиенты не указаны</div>';
+  return'<div class="ing-check-list">'+ings.map(ing=>{
+    const it=findItem(ing.name);let cls='unknown',ico='○',status='?';
+    if(it){if(it.stock==='много'||it.stock==='норм'){cls='ok';ico='✓';status='есть';}else if(it.stock==='заканчивается'){cls='low';ico='!';status='заканч.';}else{cls='missing';ico='✕';status='нет';}}
+    const a=ing.amt&&parseFloat(ing.amt)>0?(ing.amt+' '+(ing.unit||'')):'';
+    const needsCart=cls==='missing'||cls==='unknown'||cls==='low';
+    const cartBtn=needsCart?`<button class="ing-cart-btn" onclick="addIngInPlace('${escQ(ing.name)}','${escQ(ing.amt||'')}','${escQ(ing.unit||'')}','${mealId}',this)">+ в корзину</button>`:'';
+    return`<div class="ing-row ${cls}"><span class="ing-ico">${ico}</span><span class="ing-ing">${escH(ing.name)}</span><span class="ing-amt-tag">${a}</span><span class="ing-status">${status}</span>${cartBtn}</div>`;
+  }).join('')+'</div>';
+}
+function addIngInPlace(name,amt,unit,mealId,btn){
+  const it=findItem(name);addToCartRaw(name,it?it.price:null,amt,unit,mealId||null);saveAll();showToast('→ Корзина: '+name);
+  if(btn){const orig=btn.textContent,os=btn.style.cssText;btn.textContent='✓ добавлено';btn.style.color='var(--green)';btn.style.background='rgba(78,138,108,0.15)';setTimeout(()=>{btn.textContent=orig;btn.style.cssText=os;},1800);}
+}
+function recipeCard(m,mode){
+  const ic=(m.ings||[]).length;const{missing,low}=checkIngs(m.ings);
+  const ph=m.photo?`<img class="recipe-photo" src="${m.photo}">`:`<div class="recipe-photo-ph"><svg style="width:40px;height:40px;fill:none;stroke:var(--text3);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>`;
+  const eI=`<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
+  const sI=`<svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`;
+  const cI=`<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+  const pI=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const bI=`<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`;
+  const dI=`<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+  let btns=`<button class="rec-btn rb-edit" onclick="openEditRecipe('${m.id}')">${eI}Изменить</button>`;
+  if(mode==='recipe'){btns+=`<button class="rec-btn rb-plan" onclick="moveToPlan('${m.id}')">${pI}Готовить</button><button class="rec-btn rb-del" onclick="delMeal('${m.id}')">${dI}Удалить</button>`;}
+  else{if(missing>0||low>0)btns+=`<button class="rec-btn rb-shop" onclick="recipeToShop('${m.id}')">${sI}Докупить</button>`;btns+=`<button class="rec-btn rb-cook" onclick="openMarkCooked('${m.id}')">${cI}Готово!</button><button class="rec-btn rb-back" onclick="backToRecipes('${m.id}')">${bI}Назад</button>`;}
+  return`<div class="recipe-card" id="rc-${m.id}">${ph}<div class="recipe-body"><div class="recipe-name">${escH(m.name)}</div><div class="recipe-meta"><span>🧅 ${ic} ${plr(ic,'ингредиент','ингредиента','ингредиентов')}</span>${missing>0?`<span style="color:var(--red)">✕ ${missing} нет</span>`:''}${low>0?`<span style="color:var(--yellow)">⚠ ${low} заканч.</span>`:''}${!missing&&!low&&ic>0?`<span style="color:var(--green)">✓ Всё есть</span>`:''}</div></div><div class="recipe-btns">${btns}</div><div class="recipe-detail" id="rd-${m.id}"><div class="detail-hdr">Ингредиенты</div>${buildIngCheck(m.ings,m.id)}</div><button class="recipe-expand-btn" onclick="toggleRD('${m.id}')"><span>Проверить наличие</span><span id="rarr-${m.id}">›</span></button></div>`;
+}
+function toggleRD(id){const d=document.getElementById('rd-'+id);const was=d.classList.contains('open');d.classList.toggle('open',!was);const a=document.getElementById('rarr-'+id);if(a)a.style.transform=was?'':'rotate(90deg)';}
+function recipeToShop(id){const m=meals.find(x=>x.id===id);if(!m)return;(m.ings||[]).forEach(ing=>{const it=findItem(ing.name);if(!it||it.stock==='нет'||it.stock==='заканчивается')addToCartRaw(ing.name,it?it.price:null,ing.amt,ing.unit,m.id);});saveAll();switchTab('shop',document.getElementById('nb-shop'));}
+function moveToPlan(id){const m=meals.find(x=>x.id===id);if(!m)return;if(m.type==='planned'){showToast('Уже в «Планирую»');return;}m.type='planned';(m.ings||[]).forEach(ing=>{const it=findItem(ing.name);if(!it||it.stock==='нет'||it.stock==='заканчивается')addToCartRaw(ing.name,it?it.price:null,ing.amt,ing.unit,m.id);});saveAll();renderMeals();showToast('Перемещено в «Планирую»');}
+function backToRecipes(id){const m=meals.find(x=>x.id===id);if(m){m.type='recipe';saveAll();renderMeals();}}
+function delMeal(id){if(!confirm('Удалить рецепт?'))return;meals=meals.filter(m=>m.id!==id);saveAll();renderMeals();}
+
+function openPickRecipe(){document.getElementById('pickSearch').value='';renderPickList();openModal('pickRecipeM');}
+function renderPickList(){
+  const q=document.getElementById('pickSearch').value.toLowerCase().trim();
+  const list=meals.filter(m=>(!m.type||m.type==='recipe')&&(!q||m.name.toLowerCase().includes(q)));
+  if(!list.length){document.getElementById('pickList').innerHTML='<div style="color:var(--text3);text-align:center;padding:20px">Нет доступных рецептов</div>';return;}
+  document.getElementById('pickList').innerHTML=list.map(m=>{
+    const ph=m.photo?`<img class="pick-photo" src="${m.photo}">`:`<div class="pick-photo-ph">🥘</div>`;
+    const ic=(m.ings||[]).length;
+    return`<div class="pick-item" onclick="pickAndPlan('${m.id}')">${ph}<div><div class="pick-name">${escH(m.name)}</div><div class="pick-meta">${ic} ${plr(ic,'ингредиент','ингредиента','ингредиентов')}</div></div></div>`;
+  }).join('');
+}
+function pickAndPlan(id){closeModal('pickRecipeM');moveToPlan(id);}
+
+function openMarkCooked(id){cookingId=id;const m=meals.find(x=>x.id===id);document.getElementById('cookedMealName').textContent=m?m.name:'';document.getElementById('cookedPortions').value='1';document.getElementById('cookedNotes').value='';const r=document.querySelector('input[name="cookedSt"][value="fresh"]');if(r)r.checked=true;openModal('markCookedM');}
+function saveCookedDish(){const m=meals.find(x=>x.id===cookingId);if(!m)return;const st=document.querySelector('input[name="cookedSt"]:checked').value;const portions=parseInt(document.getElementById('cookedPortions').value)||1;const notes=document.getElementById('cookedNotes').value.trim();cooked.unshift({id:uid(),mealId:m.id,name:m.name,photo:m.photo,status:st,portions,notes,date:today(),ings:m.ings});m.type='recipe';cookingId=null;saveAll();closeModal('markCookedM');renderMeals();}
+
+function cookedCard(c){
+  const stMap={fresh:{cls:'st-fresh',lbl:'Готово'},frozen:{cls:'st-frozen',lbl:'Заморожено'},semi:{cls:'st-semi',lbl:'Полуфабрикат'}};
+  const st=stMap[c.status]||stMap.fresh;
+  const ph=c.photo?`<img class="cooked-photo" src="${c.photo}" style="min-height:100px;height:100%">`:`<div class="cooked-photo-ph">🍽</div>`;
+  return`<div class="cooked-card">${ph}<div class="cooked-info"><div class="cooked-name">${escH(c.name)}</div><span class="cooked-status ${st.cls}">${st.lbl}</span><div class="cooked-date">${c.date?'Готово '+fmtDate(c.date):''}${c.notes?' · '+escH(c.notes):''}</div><div class="portion-row"><button class="port-btn" onclick="chgPort('${c.id}',-1)">−</button><div class="port-n">${c.portions||0}</div><button class="port-btn" onclick="chgPort('${c.id}',1)">+</button><div class="port-lbl">${plr(c.portions||0,'порция','порции','порций')}</div></div></div><button class="cooked-del" onclick="delCooked('${c.id}')">×</button></div>`;
+}
+function chgPort(id,d){const c=cooked.find(x=>x.id===id);if(!c)return;c.portions=Math.max(0,(c.portions||0)+d);saveAll();renderMeals();}
+function delCooked(id){if(!confirm('Удалить?'))return;cooked=cooked.filter(c=>c.id!==id);saveAll();renderMeals();}
+
+function addIng(){
+  const n=document.getElementById('ingName').value.trim();if(!n)return;
+  const amt=document.getElementById('ingAmt').value.trim();const unit=document.getElementById('ingUnit').value;
+  tmpIngs.push({name:n,amt,unit});
+  if(!findItem(n)){items.push({id:uid(),name:n,cat:'Прочее',stock:'нет',price:null,inList:false,notes:'',url:'',priceHistory:[]});showToast('Создан в Запасах: '+n);saveAll();}
+  document.getElementById('ingName').value='';document.getElementById('ingAmt').value='';
+  renderIngList();document.getElementById('ingName').focus();
+}
+function removeIng(i){tmpIngs.splice(i,1);renderIngList();}
+function renderIngList(){document.getElementById('ingList').innerHTML=tmpIngs.map((ing,i)=>`<div class="ing-modal-row"><span class="ing-m-name">${escH(ing.name)}</span><span class="ing-m-amt">${ing.amt&&parseFloat(ing.amt)>0?ing.amt+' '+ing.unit:''}</span><button class="ing-m-del" onclick="removeIng(${i})">×</button></div>`).join('');}
+function openEditRecipe(id){const m=meals.find(x=>x.id===id);if(!m)return;editingId=id;document.getElementById('recipeMTitle').textContent='Редактировать рецепт';document.getElementById('rName').value=m.name;tmpIngs=[...(m.ings||[]).map(i=>({...i}))];tmpPhoto=m.photo||null;const pu=document.getElementById('photoUpload');pu.innerHTML=tmpPhoto?`<img src="${tmpPhoto}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;renderIngList();openModal('addRecipeM');}
+function clearRecipeForm(){editingId=null;tmpIngs=[];tmpPhoto=null;document.getElementById('rName').value='';document.getElementById('ingName').value='';document.getElementById('ingAmt').value='';document.getElementById('photoUpload').innerHTML=`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;document.getElementById('photoFile').value='';document.getElementById('recipeMTitle').textContent='Новый рецепт';renderIngList();}
+function saveRecipe(){
+  const lN=document.getElementById('ingName').value.trim();
+  if(lN){const amt=document.getElementById('ingAmt').value.trim();const unit=document.getElementById('ingUnit').value;tmpIngs.push({name:lN,amt,unit});if(!findItem(lN)){items.push({id:uid(),name:lN,cat:'Прочее',stock:'нет',price:null,inList:false,notes:'',url:'',priceHistory:[]});saveAll();}}
+  const name=document.getElementById('rName').value.trim();if(!name)return;
+  if(editingId){const m=meals.find(x=>x.id===editingId);if(m){m.name=name;m.photo=tmpPhoto;m.ings=[...tmpIngs];}}
+  else meals.push({id:uid(),name,photo:tmpPhoto,type:'recipe',ings:[...tmpIngs]});
+  saveAll();closeModal('addRecipeM');clearRecipeForm();renderMeals();
+}
+
+function onCatChange(selId,rowId){document.getElementById(rowId).style.display=document.getElementById(selId).value==='__new__'?'block':'none';}
+function openAddItemM(){
+  document.getElementById('niName').value='';document.getElementById('niPrice').value='';
+  document.getElementById('newCatRow').style.display='none';document.getElementById('newCatInp').value='';
+  document.getElementById('niCat').innerHTML=allCats().map(c=>`<option>${escH(c)}</option>`).join('')+'<option value="__new__">➕ Новая…</option>';
+  openModal('addItemM');
+}
+function saveItem(){
+  const n=document.getElementById('niName').value.trim();if(!n)return;
+  let cat=document.getElementById('niCat').value;
+  if(cat==='__new__'){cat=document.getElementById('newCatInp').value.trim();if(!cat)return;if(!customCats.includes(cat))customCats.push(cat);}
+  const p=parseFloat(document.getElementById('niPrice').value)||null;
+  items.push({id:uid(),name:n,cat,stock:'норм',price:p,inList:false,notes:'',url:'',priceHistory:[]});
+  saveAll();closeModal('addItemM');renderStock();
+}
+
+function loadPhoto(e,upId){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{const ratio=Math.min(700/img.width,700/img.height,1);const c=document.createElement('canvas');c.width=Math.round(img.width*ratio);c.height=Math.round(img.height*ratio);c.getContext('2d').drawImage(img,0,0,c.width,c.height);tmpPhoto=c.toDataURL('image/jpeg',0.78);document.getElementById(upId).innerHTML=`<img src="${tmpPhoto}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`;};img.src=ev.target.result;};r.readAsDataURL(file);
+}
+function fabClick(){
+  if(curTab==='stock')openAddItemM();
+  else if(curTab==='shop')openAddShopM();
+  else if(curMT==='planned')openPickRecipe();
+  else if(curMT==='recipes'){clearRecipeForm();openModal('addRecipeM');}
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+document.addEventListener('click',e=>{if(!e.target.closest('.shop-search-wrap'))document.getElementById('shopDropdown').classList.remove('open');});
+
+function plr(n,a,b,c){const m=n%100,r=n%10;if(m>=11&&m<=14)return c;if(r===1)return a;if(r>=2&&r<=4)return b;return c;}
+function today(){return new Date().toISOString().split('T')[0]}
+function fmtDate(d){try{return new Date(d).toLocaleDateString('ru',{day:'numeric',month:'short'})}catch(e){return d}}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escQ(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+function emptyState(ico,txt){return`<div class="empty"><div class="empty-ico">${ico}</div><div class="empty-txt">${txt}</div></div>`}
+let _tt;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500);}
+
+renderStock();
+</script>
+</body>
+</html>
