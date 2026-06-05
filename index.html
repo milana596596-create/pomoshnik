@@ -132,15 +132,13 @@ input,select,textarea{-webkit-appearance:none}
 .recipe-tile-meta{font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;gap:4px}
 .recipe-tile-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px}
 
-/* RECIPE DETAIL MODAL */
-.rdm-photo{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--surface2)}
-.rdm-photo-ph{width:100%;aspect-ratio:16/9;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px}
-.rdm-scroll{padding:16px 18px 24px;overflow-y:auto;max-height:65vh;-webkit-overflow-scrolling:touch}
-.rdm-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
-.rdm-title{flex:1;font-size:19px;font-weight:700;letter-spacing:-0.3px;line-height:1.25}
-.rdm-close{background:none;border:none;font-size:24px;color:var(--text3);padding:0;line-height:1;flex-shrink:0;min-width:32px;min-height:32px}
+/* RECIPE DETAIL (inline) */
+.rdm-photo{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--surface2);border-radius:var(--r);margin-bottom:14px}
+.rdm-photo-ph{width:100%;aspect-ratio:16/9;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px;border-radius:var(--r);margin-bottom:14px}
+.rdm-back{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 14px;font-size:13px;font-weight:500;color:var(--text2);box-shadow:var(--shadow);display:inline-flex;align-items:center;gap:5px;margin-bottom:14px;min-height:36px}
+.rdm-title{font-size:20px;font-weight:700;letter-spacing:-0.3px;line-height:1.25;margin-bottom:12px}
 .rdm-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.rdm-instructions{font-size:14px;line-height:1.65;color:var(--text2);white-space:pre-wrap;margin-bottom:4px}
+.rdm-instructions{font-size:14px;line-height:1.65;color:var(--text2);white-space:pre-wrap;background:var(--surface);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:4px}
 
 .recipe-name{font-size:16px;font-weight:600;letter-spacing:-0.2px;margin-bottom:4px}
 .recipe-meta{font-size:12px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap}
@@ -464,27 +462,6 @@ input[type=file]{display:none}
     <div class="filter-section"><div class="filter-section-title">Наличие</div><div class="filter-pills" id="fStockPills"></div></div>
     <div class="filter-section"><div class="filter-section-title">Категория</div><div class="filter-pills" id="fCatPills"></div></div>
     <div class="btn-row"><button class="btn-cancel" onclick="resetFilters()">Сбросить</button><button class="btn-ok" onclick="applyFilters()">Применить</button></div>
-  </div>
-</div>
-
-<!-- ДЕТАЛИ РЕЦЕПТА -->
-<div class="overlay" id="recipeDetailM">
-  <div class="modal" style="padding:0;border-radius:22px 22px 0 0;overflow:hidden">
-    <div id="rdm-photo-wrap"></div>
-    <div class="rdm-scroll">
-      <div class="modal-handle"></div>
-      <div class="rdm-header">
-        <div class="rdm-title" id="rdm-title"></div>
-        <button class="rdm-close" onclick="closeModal('recipeDetailM')">×</button>
-      </div>
-      <div class="rdm-btns" id="rdm-btns"></div>
-      <div id="rdm-instructions-wrap" style="display:none">
-        <div class="detail-hdr">Рецепт</div>
-        <div class="rdm-instructions" id="rdm-instructions-text"></div>
-      </div>
-      <div class="detail-hdr">Ингредиенты</div>
-      <div id="rdm-ings"></div>
-    </div>
   </div>
 </div>
 
@@ -837,23 +814,26 @@ function openRecipeDetail(id,mode){
   const{missing,low}=checkIngs(m.ings);
   let btns=`<button class="rec-btn rb-edit" onclick="openEditRecipe('${m.id}')">${eI}Изменить</button>`;
   if(mode==='recipe'){
-    btns+=`<button class="rec-btn rb-plan" onclick="closeModal('recipeDetailM');moveToPlan('${m.id}')">${pI}Готовить</button>`;
-    btns+=`<button class="rec-btn rb-del" onclick="closeModal('recipeDetailM');delMeal('${m.id}')">${dI}Удалить</button>`;
+    btns+=`<button class="rec-btn rb-plan" onclick="moveToPlan('${m.id}')">${pI}Готовить</button>`;
+    btns+=`<button class="rec-btn rb-del" onclick="delMeal('${m.id}')">${dI}Удалить</button>`;
   } else {
-    if(missing>0||low>0)btns+=`<button class="rec-btn rb-shop" onclick="closeModal('recipeDetailM');recipeToShop('${m.id}')">${sI}Докупить</button>`;
-    btns+=`<button class="rec-btn rb-cook" onclick="closeModal('recipeDetailM');openMarkCooked('${m.id}')">${cI}Готово!</button>`;
-    btns+=`<button class="rec-btn rb-back" onclick="closeModal('recipeDetailM');backToRecipes('${m.id}')">${bI}Назад</button>`;
+    if(missing>0||low>0)btns+=`<button class="rec-btn rb-shop" onclick="recipeToShop('${m.id}')">${sI}Докупить</button>`;
+    btns+=`<button class="rec-btn rb-cook" onclick="openMarkCooked('${m.id}')">${cI}Готово!</button>`;
+    btns+=`<button class="rec-btn rb-back" onclick="backToRecipes('${m.id}')">${bI}В рецепты</button>`;
   }
-  document.getElementById('rdm-photo-wrap').innerHTML=m.photo
-    ?`<img class="rdm-photo" src="${m.photo}">`
-    :`<div class="rdm-photo-ph">🍽</div>`;
-  document.getElementById('rdm-title').textContent=m.name;
-  document.getElementById('rdm-btns').innerHTML=btns;
-  const iw=document.getElementById('rdm-instructions-wrap');
-  if(m.instructions){iw.style.display='block';document.getElementById('rdm-instructions-text').textContent=m.instructions;}
-  else iw.style.display='none';
-  document.getElementById('rdm-ings').innerHTML=buildIngCheck(m.ings,m.id);
-  openModal('recipeDetailM');
+  const ph=m.photo?`<img class="rdm-photo" src="${m.photo}">`:`<div class="rdm-photo-ph">🍽</div>`;
+  const instr=m.instructions?`<div class="detail-hdr">Рецепт</div><div class="rdm-instructions">${escH(m.instructions)}</div>`:'';
+  const ings=buildIngCheck(m.ings,m.id);
+  document.getElementById('mealContent').innerHTML=`
+    <button class="rdm-back" onclick="renderMeals()">‹ Назад</button>
+    ${ph}
+    <div class="rdm-title">${escH(m.name)}</div>
+    <div class="rdm-btns">${btns}</div>
+    ${instr}
+    <div class="detail-hdr">Ингредиенты</div>
+    ${ings}
+  `;
+  window.scrollTo(0,0);
 }
 
 function buildIngCheck(ings,mealId){
@@ -966,7 +946,6 @@ function renderIngList(){
 }
 function openEditRecipe(id){
   const m=meals.find(x=>x.id===id);if(!m)return;
-  closeModal('recipeDetailM');
   editingId=id;
   document.getElementById('recipeMTitle').textContent='Редактировать рецепт';
   document.getElementById('rName').value=m.name;
