@@ -120,13 +120,31 @@ input,select,textarea{-webkit-appearance:none}
 .meal-subtabs{display:flex;background:var(--surface2);border-radius:12px;padding:3px;margin-bottom:14px;gap:2px}
 .mst{flex:1;padding:8px 4px;border:none;background:none;font-size:12px;font-weight:500;color:var(--text2);border-radius:10px;transition:all .15s;text-align:center;min-height:38px}
 .mst.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08);font-weight:600}
-.recipe-card{background:var(--surface);border-radius:var(--r);margin-bottom:11px;overflow:hidden;box-shadow:var(--shadow)}
-.recipe-photo{width:100%;height:170px;object-fit:cover;display:block}
-.recipe-photo-ph{width:100%;height:100px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
-.recipe-body{padding:12px 15px 9px}
+
+/* RECIPE GRID */
+.recipe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.recipe-tile{background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:opacity .15s}
+.recipe-tile:active{opacity:.8}
+.recipe-tile-img{aspect-ratio:1/1;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.recipe-tile-img img{width:100%;height:100%;object-fit:cover;display:block}
+.recipe-tile-body{padding:8px 10px 11px}
+.recipe-tile-name{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.recipe-tile-meta{font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;gap:4px}
+.recipe-tile-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px}
+
+/* RECIPE DETAIL MODAL */
+.rdm-photo{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--surface2)}
+.rdm-photo-ph{width:100%;aspect-ratio:16/9;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px}
+.rdm-scroll{padding:16px 18px 24px;overflow-y:auto;max-height:65vh;-webkit-overflow-scrolling:touch}
+.rdm-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.rdm-title{flex:1;font-size:19px;font-weight:700;letter-spacing:-0.3px;line-height:1.25}
+.rdm-close{background:none;border:none;font-size:24px;color:var(--text3);padding:0;line-height:1;flex-shrink:0;min-width:32px;min-height:32px}
+.rdm-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.rdm-instructions{font-size:14px;line-height:1.65;color:var(--text2);white-space:pre-wrap;margin-bottom:4px}
+
 .recipe-name{font-size:16px;font-weight:600;letter-spacing:-0.2px;margin-bottom:4px}
 .recipe-meta{font-size:12px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap}
-.recipe-btns{display:flex;gap:6px;padding:0 15px 11px;flex-wrap:wrap}
+.recipe-btns{display:flex;gap:6px;flex-wrap:wrap}
 .rec-btn{padding:8px 9px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap;min-height:36px}
 .rec-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .rb-edit{background:var(--accent-light);color:var(--accent)}
@@ -135,9 +153,8 @@ input,select,textarea{-webkit-appearance:none}
 .rb-back{background:var(--yellow-bg);color:var(--yellow)}
 .rb-shop{background:var(--accent);color:#fff}
 .rb-del{background:var(--red-bg);color:var(--red)}
-.recipe-detail{display:none;padding:0 15px 13px;border-top:1px solid var(--surface2)}
-.recipe-detail.open{display:block}
-.detail-hdr{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin:11px 0 7px}
+.detail-hdr{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin:14px 0 7px}
+.detail-hdr:first-child{margin-top:0}
 .ing-check-list{display:flex;flex-direction:column;gap:4px}
 .ing-row{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:var(--r-sm);font-size:14px}
 .ing-row.ok{background:var(--green-bg);color:var(--green)}
@@ -149,7 +166,11 @@ input,select,textarea{-webkit-appearance:none}
 .ing-amt-tag{font-size:11px;opacity:.8;white-space:nowrap}
 .ing-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap}
 .ing-cart-btn{background:rgba(0,0,0,0.09);border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;color:inherit;flex-shrink:0;min-height:26px;transition:all .2s}
-.recipe-expand-btn{width:100%;background:none;border:none;border-top:1px solid var(--surface2);padding:10px 15px;font-size:13px;font-weight:500;color:var(--text2);text-align:left;display:flex;justify-content:space-between;align-items:center;min-height:42px}
+
+/* ING SEARCH IN RECIPE MODAL */
+.ing-search-wrap{position:relative;flex:1}
+.ing-move-btn{background:none;border:1px solid var(--border);border-radius:5px;color:var(--text3);font-size:12px;padding:0;width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;line-height:1}
+.ing-move-btn:disabled{opacity:.2}
 
 .cooked-card{background:var(--surface);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);display:flex}
 .cooked-photo{width:86px;flex-shrink:0;object-fit:cover;display:block;background:var(--surface2)}
@@ -394,12 +415,18 @@ input[type=file]{display:none}
     <div class="fl"><label>Название блюда</label><input class="fi" id="rName" placeholder="например, Борщ"></div>
     <div class="fl"><label>Ингредиенты</label>
       <div class="ing-modal-list" id="ingList"></div>
-      <div class="ing-add-row">
-        <button class="ing-add-plus" onclick="addIng()">+</button>
-        <input class="ing-add-name" id="ingName" placeholder="Ингредиент…" onkeydown="if(event.key==='Enter'){event.preventDefault();addIng()}">
-        <input class="ing-add-amt" id="ingAmt" type="number" min="0" placeholder="Кол.">
-        <select class="ing-add-unit" id="ingUnit"><option>г</option><option>кг</option><option>шт</option><option>мл</option><option>л</option><option>ст.л.</option><option>ч.л.</option><option>упак</option><option>по вкусу</option></select>
+      <div class="ing-add-row" style="flex-wrap:wrap;gap:5px">
+        <div class="ing-search-wrap">
+          <input class="ing-add-name" id="ingName" placeholder="Поиск в Запасах…" oninput="onIngSearch()" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();addIng()}">
+          <div class="shop-dropdown" id="ingDropdown"></div>
+        </div>
+        <input class="ing-add-amt" id="ingAmt" type="number" min="0" placeholder="Кол." style="width:60px;flex-shrink:0">
+        <select class="ing-add-unit" id="ingUnit" style="width:70px;flex-shrink:0"><option>г</option><option>кг</option><option>шт</option><option>мл</option><option>л</option><option>ст.л.</option><option>ч.л.</option><option>упак</option><option>по вкусу</option></select>
+        <button class="ing-add-plus" onclick="addIng()" style="flex-shrink:0">+</button>
       </div>
+    </div>
+    <div class="fl"><label>Рецепт и способ приготовления</label>
+      <textarea class="d2-notes" id="rInstructions" placeholder="Шаги приготовления, время, температура…" style="min-height:100px"></textarea>
     </div>
     <div class="btn-row"><button class="btn-cancel" onclick="closeModal('addRecipeM')">Отмена</button><button class="btn-ok" onclick="saveRecipe()">Сохранить</button></div>
   </div>
@@ -437,6 +464,27 @@ input[type=file]{display:none}
     <div class="filter-section"><div class="filter-section-title">Наличие</div><div class="filter-pills" id="fStockPills"></div></div>
     <div class="filter-section"><div class="filter-section-title">Категория</div><div class="filter-pills" id="fCatPills"></div></div>
     <div class="btn-row"><button class="btn-cancel" onclick="resetFilters()">Сбросить</button><button class="btn-ok" onclick="applyFilters()">Применить</button></div>
+  </div>
+</div>
+
+<!-- ДЕТАЛИ РЕЦЕПТА -->
+<div class="overlay" id="recipeDetailM">
+  <div class="modal" style="padding:0;border-radius:22px 22px 0 0;overflow:hidden">
+    <div id="rdm-photo-wrap"></div>
+    <div class="rdm-scroll">
+      <div class="modal-handle"></div>
+      <div class="rdm-header">
+        <div class="rdm-title" id="rdm-title"></div>
+        <button class="rdm-close" onclick="closeModal('recipeDetailM')">×</button>
+      </div>
+      <div class="rdm-btns" id="rdm-btns"></div>
+      <div id="rdm-instructions-wrap" style="display:none">
+        <div class="detail-hdr">Рецепт</div>
+        <div class="rdm-instructions" id="rdm-instructions-text"></div>
+      </div>
+      <div class="detail-hdr">Ингредиенты</div>
+      <div id="rdm-ings"></div>
+    </div>
   </div>
 </div>
 
@@ -749,12 +797,65 @@ function saveShopItem(){
 
 function renderMeals(){
   let h='';
-  if(curMT==='recipes'){const list=meals.filter(m=>!m.type||m.type==='recipe');if(!list.length)h=emptyState('📖','Добавьте первый рецепт кнопкой +');else list.forEach(m=>h+=recipeCard(m,'recipe'));}
-  else if(curMT==='planned'){const list=meals.filter(m=>m.type==='planned');if(!list.length)h=emptyState('📅','Нажмите + чтобы выбрать рецепт');else list.forEach(m=>h+=recipeCard(m,'planned'));}
-  else{if(!cooked.length)h=emptyState('🍽','Готовые блюда появятся здесь');else cooked.forEach(c=>h+=cookedCard(c));}
+  if(curMT==='recipes'){
+    const list=meals.filter(m=>!m.type||m.type==='recipe');
+    if(!list.length)h=emptyState('📖','Добавьте первый рецепт кнопкой +');
+    else{h='<div class="recipe-grid">';list.forEach(m=>h+=recipeTile(m,'recipe'));h+='</div>';}
+  } else if(curMT==='planned'){
+    const list=meals.filter(m=>m.type==='planned');
+    if(!list.length)h=emptyState('📅','Нажмите + чтобы выбрать рецепт');
+    else{h='<div class="recipe-grid">';list.forEach(m=>h+=recipeTile(m,'planned'));h+='</div>';}
+  } else{
+    if(!cooked.length)h=emptyState('🍽','Готовые блюда появятся здесь');
+    else cooked.forEach(c=>h+=cookedCard(c));
+  }
   document.getElementById('mealContent').innerHTML=h;
 }
 function checkIngs(ings){let missing=0,low=0,ok=0;(ings||[]).forEach(ing=>{const it=findItem(ing.name);if(!it||it.stock==='нет')missing++;else if(it.stock==='заканчивается')low++;else ok++;});return{missing,low,ok};}
+
+function recipeTile(m,mode){
+  const ic=(m.ings||[]).length;const{missing,low}=checkIngs(m.ings);
+  const ph=m.photo
+    ?`<div class="recipe-tile-img"><img src="${m.photo}"></div>`
+    :`<div class="recipe-tile-img"><svg style="width:36px;height:36px;fill:none;stroke:var(--text3);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>`;
+  let badges='';
+  if(missing>0)badges+=`<span class="recipe-tile-badge" style="background:var(--red-bg);color:var(--red)">✕${missing} нет</span>`;
+  else if(low>0)badges+=`<span class="recipe-tile-badge" style="background:var(--yellow-bg);color:var(--yellow)">⚠${low}</span>`;
+  else if(ic>0)badges+=`<span class="recipe-tile-badge" style="background:var(--green-bg);color:var(--green)">✓ всё есть</span>`;
+  if(mode==='planned')badges=`<span class="recipe-tile-badge" style="background:var(--blue-bg);color:var(--blue)">планирую</span>`+badges;
+  return`<div class="recipe-tile" onclick="openRecipeDetail('${m.id}','${mode}')">${ph}<div class="recipe-tile-body"><div class="recipe-tile-name">${escH(m.name)}</div><div class="recipe-tile-meta">${badges}</div></div></div>`;
+}
+
+function openRecipeDetail(id,mode){
+  const m=meals.find(x=>x.id===id);if(!m)return;
+  const eI=`<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
+  const sI=`<svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`;
+  const cI=`<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+  const pI=`<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  const bI=`<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`;
+  const dI=`<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>`;
+  const{missing,low}=checkIngs(m.ings);
+  let btns=`<button class="rec-btn rb-edit" onclick="openEditRecipe('${m.id}')">${eI}Изменить</button>`;
+  if(mode==='recipe'){
+    btns+=`<button class="rec-btn rb-plan" onclick="closeModal('recipeDetailM');moveToPlan('${m.id}')">${pI}Готовить</button>`;
+    btns+=`<button class="rec-btn rb-del" onclick="closeModal('recipeDetailM');delMeal('${m.id}')">${dI}Удалить</button>`;
+  } else {
+    if(missing>0||low>0)btns+=`<button class="rec-btn rb-shop" onclick="closeModal('recipeDetailM');recipeToShop('${m.id}')">${sI}Докупить</button>`;
+    btns+=`<button class="rec-btn rb-cook" onclick="closeModal('recipeDetailM');openMarkCooked('${m.id}')">${cI}Готово!</button>`;
+    btns+=`<button class="rec-btn rb-back" onclick="closeModal('recipeDetailM');backToRecipes('${m.id}')">${bI}Назад</button>`;
+  }
+  document.getElementById('rdm-photo-wrap').innerHTML=m.photo
+    ?`<img class="rdm-photo" src="${m.photo}">`
+    :`<div class="rdm-photo-ph">🍽</div>`;
+  document.getElementById('rdm-title').textContent=m.name;
+  document.getElementById('rdm-btns').innerHTML=btns;
+  const iw=document.getElementById('rdm-instructions-wrap');
+  if(m.instructions){iw.style.display='block';document.getElementById('rdm-instructions-text').textContent=m.instructions;}
+  else iw.style.display='none';
+  document.getElementById('rdm-ings').innerHTML=buildIngCheck(m.ings,m.id);
+  openModal('recipeDetailM');
+}
+
 function buildIngCheck(ings,mealId){
   if(!ings||!ings.length)return '<div style="color:var(--text3);font-size:13px;padding:8px 0">Ингредиенты не указаны</div>';
   return'<div class="ing-check-list">'+ings.map(ing=>{
@@ -815,24 +916,85 @@ function cookedCard(c){
 function chgPort(id,d){const c=cooked.find(x=>x.id===id);if(!c)return;c.portions=Math.max(0,(c.portions||0)+d);saveAll();renderMeals();}
 function delCooked(id){if(!confirm('Удалить?'))return;cooked=cooked.filter(c=>c.id!==id);saveAll();renderMeals();}
 
+function onIngSearch(){
+  const q=document.getElementById('ingName').value.trim();
+  const dd=document.getElementById('ingDropdown');
+  if(!q){dd.classList.remove('open');return;}
+  const matches=items.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  const dcol={много:'var(--green)',норм:'var(--yellow)',заканчивается:'var(--red)',нет:'var(--border)'};
+  let h=matches.map(it=>`<div class="sdrop-item" onclick="selectIngItem('${escQ(it.name)}')"><div class="sdrop-dot" style="background:${dcol[it.stock]||'var(--border)'}"></div><span class="sdrop-name">${escH(it.name)}</span><span class="sdrop-cat">${escH(it.cat)}</span></div>`).join('');
+  const exact=items.find(i=>i.name.toLowerCase().trim()===q.toLowerCase().trim());
+  if(!exact)h+=`<div class="sdrop-item" onclick="addIngNewToStock('${escQ(q)}')"><span class="sdrop-new">➕ Добавить «${escH(q)}» в Запасы и рецепт</span></div>`;
+  dd.innerHTML=h;dd.classList.add('open');
+}
+function selectIngItem(name){
+  document.getElementById('ingName').value=name;
+  document.getElementById('ingDropdown').classList.remove('open');
+  document.getElementById('ingAmt').focus();
+}
+function addIngNewToStock(name){
+  if(!findItem(name)){
+    items.push({id:uid(),name,cat:'Прочее',stock:'нет',price:null,inList:false,notes:'',url:'',priceHistory:[]});
+    saveAll();showToast('Добавлено в Запасы: '+name);
+  }
+  document.getElementById('ingName').value=name;
+  document.getElementById('ingDropdown').classList.remove('open');
+  document.getElementById('ingAmt').focus();
+}
 function addIng(){
   const n=document.getElementById('ingName').value.trim();if(!n)return;
+  if(!findItem(n)){showToast('Сначала выберите продукт из Запасов');return;}
   const amt=document.getElementById('ingAmt').value.trim();const unit=document.getElementById('ingUnit').value;
   tmpIngs.push({name:n,amt,unit});
-  if(!findItem(n)){items.push({id:uid(),name:n,cat:'Прочее',stock:'нет',price:null,inList:false,notes:'',url:'',priceHistory:[]});showToast('Создан в Запасах: '+n);saveAll();}
   document.getElementById('ingName').value='';document.getElementById('ingAmt').value='';
+  document.getElementById('ingDropdown').classList.remove('open');
   renderIngList();document.getElementById('ingName').focus();
 }
 function removeIng(i){tmpIngs.splice(i,1);renderIngList();}
-function renderIngList(){document.getElementById('ingList').innerHTML=tmpIngs.map((ing,i)=>`<div class="ing-modal-row"><span class="ing-m-name">${escH(ing.name)}</span><span class="ing-m-amt">${ing.amt&&parseFloat(ing.amt)>0?ing.amt+' '+ing.unit:''}</span><button class="ing-m-del" onclick="removeIng(${i})">×</button></div>`).join('');}
-function openEditRecipe(id){const m=meals.find(x=>x.id===id);if(!m)return;editingId=id;document.getElementById('recipeMTitle').textContent='Редактировать рецепт';document.getElementById('rName').value=m.name;tmpIngs=[...(m.ings||[]).map(i=>({...i}))];tmpPhoto=m.photo||null;const pu=document.getElementById('photoUpload');pu.innerHTML=tmpPhoto?`<img src="${tmpPhoto}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;renderIngList();openModal('addRecipeM');}
-function clearRecipeForm(){editingId=null;tmpIngs=[];tmpPhoto=null;document.getElementById('rName').value='';document.getElementById('ingName').value='';document.getElementById('ingAmt').value='';document.getElementById('photoUpload').innerHTML=`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;document.getElementById('photoFile').value='';document.getElementById('recipeMTitle').textContent='Новый рецепт';renderIngList();}
+function moveIng(i,d){const j=i+d;if(j<0||j>=tmpIngs.length)return;[tmpIngs[i],tmpIngs[j]]=[tmpIngs[j],tmpIngs[i]];renderIngList();}
+function renderIngList(){
+  document.getElementById('ingList').innerHTML=tmpIngs.map((ing,i)=>`
+    <div class="ing-modal-row">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-right:3px">
+        <button class="ing-move-btn" onclick="moveIng(${i},-1)" ${i===0?'disabled':''}>▲</button>
+        <button class="ing-move-btn" onclick="moveIng(${i},1)" ${i===tmpIngs.length-1?'disabled':''}>▼</button>
+      </div>
+      <span class="ing-m-name">${escH(ing.name)}</span>
+      <span class="ing-m-amt">${ing.amt&&parseFloat(ing.amt)>0?ing.amt+' '+ing.unit:''}</span>
+      <button class="ing-m-del" onclick="removeIng(${i})">×</button>
+    </div>`).join('');
+}
+function openEditRecipe(id){
+  const m=meals.find(x=>x.id===id);if(!m)return;
+  closeModal('recipeDetailM');
+  editingId=id;
+  document.getElementById('recipeMTitle').textContent='Редактировать рецепт';
+  document.getElementById('rName').value=m.name;
+  document.getElementById('rInstructions').value=m.instructions||'';
+  tmpIngs=[...(m.ings||[]).map(i=>({...i}))];tmpPhoto=m.photo||null;
+  const pu=document.getElementById('photoUpload');
+  pu.innerHTML=tmpPhoto?`<img src="${tmpPhoto}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;
+  renderIngList();openModal('addRecipeM');
+}
+function clearRecipeForm(){
+  editingId=null;tmpIngs=[];tmpPhoto=null;
+  document.getElementById('rName').value='';
+  document.getElementById('rInstructions').value='';
+  document.getElementById('ingName').value='';
+  document.getElementById('ingAmt').value='';
+  document.getElementById('ingDropdown').classList.remove('open');
+  document.getElementById('photoUpload').innerHTML=`<span class="photo-ico-up">📷</span><span class="photo-upload-txt">Нажмите, чтобы добавить фото</span>`;
+  document.getElementById('photoFile').value='';
+  document.getElementById('recipeMTitle').textContent='Новый рецепт';
+  renderIngList();
+}
 function saveRecipe(){
   const lN=document.getElementById('ingName').value.trim();
-  if(lN){const amt=document.getElementById('ingAmt').value.trim();const unit=document.getElementById('ingUnit').value;tmpIngs.push({name:lN,amt,unit});if(!findItem(lN)){items.push({id:uid(),name:lN,cat:'Прочее',stock:'нет',price:null,inList:false,notes:'',url:'',priceHistory:[]});saveAll();}}
+  if(lN&&findItem(lN)){const amt=document.getElementById('ingAmt').value.trim();const unit=document.getElementById('ingUnit').value;tmpIngs.push({name:lN,amt,unit});}
   const name=document.getElementById('rName').value.trim();if(!name)return;
-  if(editingId){const m=meals.find(x=>x.id===editingId);if(m){m.name=name;m.photo=tmpPhoto;m.ings=[...tmpIngs];}}
-  else meals.push({id:uid(),name,photo:tmpPhoto,type:'recipe',ings:[...tmpIngs]});
+  const instructions=document.getElementById('rInstructions').value.trim();
+  if(editingId){const m=meals.find(x=>x.id===editingId);if(m){m.name=name;m.photo=tmpPhoto;m.ings=[...tmpIngs];m.instructions=instructions;}}
+  else meals.push({id:uid(),name,photo:tmpPhoto,type:'recipe',ings:[...tmpIngs],instructions});
   saveAll();closeModal('addRecipeM');clearRecipeForm();renderMeals();
 }
 
@@ -865,7 +1027,10 @@ function fabClick(){
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
-document.addEventListener('click',e=>{if(!e.target.closest('.shop-search-wrap'))document.getElementById('shopDropdown').classList.remove('open');});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.shop-search-wrap'))document.getElementById('shopDropdown').classList.remove('open');
+  if(!e.target.closest('.ing-search-wrap'))document.getElementById('ingDropdown').classList.remove('open');
+});
 
 function plr(n,a,b,c){const m=n%100,r=n%10;if(m>=11&&m<=14)return c;if(r===1)return a;if(r>=2&&r<=4)return b;return c;}
 function today(){return new Date().toISOString().split('T')[0]}
