@@ -126,16 +126,37 @@ input,select,textarea{-webkit-appearance:none}
 .mst{flex:1;padding:8px 4px;border:none;background:none;font-size:12px;font-weight:500;color:var(--text2);border-radius:10px;transition:all .15s;text-align:center;min-height:38px}
 .mst.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08);font-weight:600}
 
-/* RECIPE GRID */
-.recipe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.recipe-tile{background:var(--surface);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:opacity .15s}
-.recipe-tile:active{opacity:.8}
-.recipe-tile-img{aspect-ratio:1/1;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center}
-.recipe-tile-img img{width:100%;height:100%;object-fit:cover;display:block}
-.recipe-tile-body{padding:8px 10px 11px}
-.recipe-tile-name{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.recipe-tile-meta{font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;gap:4px}
-.recipe-tile-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px}
+/* RECIPE SEARCH & FILTER */
+.recipe-search-bar{position:relative;margin-bottom:10px}
+.recipe-search-bar input{width:100%;box-sizing:border-box;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;-webkit-appearance:none}
+.recipe-search-bar input:focus{border-color:var(--accent)}
+.recipe-search-bar svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:var(--text3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.recipe-filter-chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:4px}
+.recipe-filter-chips::-webkit-scrollbar{display:none}
+.rfc-chip{flex-shrink:0;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;color:var(--text2);background:var(--surface);cursor:pointer;transition:all .15s;white-space:nowrap}
+.rfc-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* RECIPE LIST */
+.recipe-list{display:flex;flex-direction:column;gap:6px}
+.recipe-list-item{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:12px 14px;cursor:pointer;transition:opacity .15s;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.recipe-list-item:active{opacity:.7}
+.recipe-list-main{flex:1;min-width:0}
+.recipe-list-name{font-size:15px;font-weight:600;line-height:1.3;margin-bottom:5px;color:var(--text)}
+.recipe-list-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.recipe-list-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.recipe-list-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--surface2);color:var(--text2)}
+.recipe-list-arrow{color:var(--text3);font-size:18px;flex-shrink:0}
+/* SMART CART */
+.smart-btn{width:32px;height:32px;border:none;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:opacity .15s}
+.smart-btn:active{opacity:.7}
+.smart-btn.add{background:rgba(255,255,255,0.28);color:#fff}
+.smart-btn.clr{background:rgba(255,80,80,0.3);color:#fff}
+.smart-panel{background:var(--surface2);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:10px}
+.smart-panel-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text3);margin-bottom:8px}
+.smart-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.smart-chips::-webkit-scrollbar{display:none}
+.smart-chip{flex-shrink:0;padding:5px 12px;border:none;border-radius:20px;font-size:12px;font-weight:600;color:var(--text2);background:var(--surface);cursor:pointer;transition:all .15s;white-space:nowrap}
+.smart-chip.accent{background:var(--accent);color:#fff}
+.smart-chip:active{opacity:.7}
 
 /* RECIPE DETAIL (inline) */
 .rdm-photo{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--surface2);border-radius:var(--r);margin-bottom:14px}
@@ -313,12 +334,31 @@ input[type=file]{display:none}
       <div class="total-row">
         <div class="total-count" id="totalCnt"></div>
         <button class="total-btn" onclick="clearChecked()">✓ Куплено</button>
-        <button class="total-btn danger" onclick="clearAllCart()">🗑 Очистить</button>
+        <button class="total-btn" onclick="openAddShopM()">+ Вручную</button>
+        <button class="smart-btn add" onclick="toggleAddPanel()" title="добавить">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </button>
+        <button class="smart-btn clr" onclick="toggleClearPanel()" title="очистить">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
       </div>
     </div>
-    <div class="list-acts">
-      <button class="list-act" onclick="addLowToList()">+ Нет и заканчивается</button>
-      <button class="list-act" onclick="openAddShopM()">+ Вручную</button>
+    <div id="addPanel" class="smart-panel" style="display:none">
+      <div class="smart-panel-lbl">добавить</div>
+      <div class="smart-chips">
+        <button class="smart-chip accent" onclick="addMissingFromRecipes()">По рецептам</button>
+        <button class="smart-chip" onclick="addMissingAll()">Все</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Овощи')">Овощи</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Фрукты')">Фрукты</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Молочное')">Молочное</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Мясо')">Мясо</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Крупы и бобовые')">Крупы</button>
+        <button class="smart-chip" onclick="addMissingByCategory('Аптека')">Аптека</button>
+      </div>
+    </div>
+    <div id="clrPanel" class="smart-panel" style="display:none">
+      <div class="smart-panel-lbl">очистить</div>
+      <div class="smart-chips" id="clrChips"></div>
     </div>
     <div id="shopList"></div>
   </div>
@@ -519,6 +559,7 @@ items.forEach(it=>{if(!it.notes)it.notes='';if(!it.url)it.url='';if(!it.priceHis
 {const names=new Set(items.map(i=>i.name));let added=false;DEFS.forEach(d=>{if(!names.has(d.n)){items.push({id:uid(),name:d.n,cat:d.c,stock:'норм',price:null,inList:false,notes:'',url:'',priceHistory:[]});added=true;}});if(added)sv('itm9',items);}
 
 let shopList=ld('shl9',[]);
+const MEAL_CAT_MAP={'md01':'Завтраки','md02':'Завтраки','md03':'Завтраки','md04':'Завтраки','md05':'Завтраки','md06':'Гарниры','md07':'Завтраки','md08':'Завтраки','md09':'Завтраки','md10':'Завтраки','md11':'Мясо','md12':'Мясо','md13':'Мясо','md14':'Мясо','md15':'Мясо','md16':'Мясо','md17':'Супы','md18':'Гарниры','md19':'Гарниры','md20':'Гарниры','md21':'Гарниры','md22':'Гарниры','md23':'Гарниры','md24':'Гарниры','md25':'Салаты','md26':'Салаты','md27':'Гарниры','md28':'Десерты','md29':'Десерты','md30':'Десерты','md31':'Десерты','md32':'Десерты','md33':'Завтраки','md34':'Салаты','md35':'Десерты','md36':'Десерты','md37':'Десерты'};
 const MEAL_DEFS=[
 {id:'md01',name:'Сырники классические',type:'recipe',photo:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80',instructions:'Смешать творог, желтки, муку, сахар, ванилин. По желанию добавить вяленую вишню или пармезан. Сформировать сырники влажными руками. Жарить на смеси сливочного и растительного масла: сначала на огне выше среднего до румяной корочки, затем на слабом огне до готовности. Можно довести в духовке 180°C / 10 мин.',ings:[{name:'Творог',amt:'400',unit:'г'},{name:'Яйца',amt:'2',unit:'шт'},{name:'Мука пшеничная',amt:'35',unit:'г'},{name:'Сахар',amt:'20',unit:'г'},{name:'Ванилин',amt:'1',unit:'г'},{name:'Масло сливочное',amt:'30',unit:'г'},{name:'Масло растительное',amt:'2',unit:'ст.л.'}]},
 {id:'md02',name:'Фриттата с овощами',type:'recipe',photo:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80',instructions:'Обжарить нарезанные овощи на оливковом масле 5–7 мин на сковороде, пригодной для духовки. Взбить яйца с молоком, посолить. Залить овощи, сверху покрошить фету. Запекать 180°C / 15 мин. Хранится в холодильнике 4 дня, замораживается.',ings:[{name:'Яйца',amt:'6',unit:'шт'},{name:'Молоко',amt:'3',unit:'ст.л.'},{name:'Цукини',amt:'1',unit:'шт'},{name:'Болгарский перец',amt:'1',unit:'шт'},{name:'Фета',amt:'80',unit:'г'},{name:'Шпинат',amt:'1',unit:'горсть'},{name:'Масло оливковое',amt:'2',unit:'ст.л.'}]},
@@ -559,7 +600,8 @@ const MEAL_DEFS=[
 {id:'md37',name:'Шарлотка',type:'recipe',photo:null,instructions:'Взбить яйца с солью и сахаром 5–10 мин до пышности. Добавить муку, сметану, цедру лимона, перемешать. Яблоки очистить, нарезать ломтиками. Смазать форму маслом, выложить яблоки на дно. Залить тестом. Выпекать 180°C / 30–40 мин.',ings:[{name:'Яйца',amt:'4',unit:'шт'},{name:'Яблоко',amt:'4',unit:'шт'},{name:'Сахар',amt:'150',unit:'г'},{name:'Мука пшеничная',amt:'150',unit:'г'},{name:'Сметана',amt:'1',unit:'ст.л.'},{name:'Ванилин',amt:'1',unit:'г'},{name:'Лимон',amt:'0.5',unit:'шт'}]}
 ];
 let meals=ld('mls9',[]);
-if(meals.length===0){meals=MEAL_DEFS.map(m=>({...m}));sv('mls9',meals);}
+if(meals.length===0){meals=MEAL_DEFS.map(m=>({...m,cat:MEAL_CAT_MAP[m.id]||'Прочее'}));sv('mls9',meals);}
+{let mig=false;meals.forEach(m=>{if(!m.cat){m.cat=MEAL_CAT_MAP[m.id]||'Прочее';mig=true;}});if(mig)sv('mls9',meals);}
 let cooked=ld('ckd9',[]);
 let customCats=ld('ucat9',[]);
 let catOrder=ld('cord9',[]);
@@ -574,6 +616,8 @@ function findItem(name){return items.find(i=>i.name.toLowerCase().trim()===name.
 function findItem2(id){return items.find(i=>i.id===id)}
 
 let curTab='stock',curMT='recipes',stockFilt='all',catFilt='all',tmpSF='all',tmpCF='all';
+let mealSearch='',mealCatFilter='все';
+let addPanelOpen=false,clrPanelOpen=false;
 let editingId=null,cookingId=null,editingItemId=null;
 let tmpIngs=[],tmpPhoto=null,tmpCatOrder=[];
 let shopSelectedItem=null;
@@ -761,6 +805,62 @@ function chkShop(id){const s=shopList.find(x=>x.id===id);if(!s)return;s.checked=
 function delShop(id){const s=shopList.find(x=>x.id===id);if(s&&s.fromId){const it=findItem2(s.fromId);if(it)it.inList=false;}shopList=shopList.filter(x=>x.id!==id);saveAll();renderShop();}
 function clearChecked(){shopList.filter(s=>s.checked&&s.fromId).forEach(s=>{const it=findItem2(s.fromId);if(it){it.stock='норм';it.inList=false;}});shopList=shopList.filter(s=>!s.checked);saveAll();renderShop();}
 function clearAllCart(){if(!confirm('Очистить всю корзину?'))return;items.forEach(it=>it.inList=false);shopList=[];saveAll();renderShop();showToast('Корзина очищена');}
+function toggleAddPanel(){
+  addPanelOpen=!addPanelOpen;if(addPanelOpen)clrPanelOpen=false;
+  document.getElementById('addPanel').style.display=addPanelOpen?'block':'none';
+  document.getElementById('clrPanel').style.display='none';
+}
+function toggleClearPanel(){
+  clrPanelOpen=!clrPanelOpen;if(clrPanelOpen)addPanelOpen=false;
+  document.getElementById('clrPanel').style.display=clrPanelOpen?'block':'none';
+  document.getElementById('addPanel').style.display='none';
+  if(clrPanelOpen)renderClrChips();
+}
+function renderClrChips(){
+  const cats=[...new Set(shopList.filter(s=>!s.checked&&s.fromId).map(s=>{const it=findItem2(s.fromId);return it?it.cat:null;}).filter(Boolean))];
+  let h=`<button class="smart-chip" onclick="clearAllCart()">Все</button>`;
+  cats.forEach(c=>h+=`<button class="smart-chip" onclick="clearByCategory('${escQ(c)}')">${escH(c)}</button>`);
+  document.getElementById('clrChips').innerHTML=h;
+}
+function addMissingFromRecipes(){
+  let added=0;
+  meals.forEach(m=>{
+    (m.ings||[]).forEach(ing=>{
+      const it=findItem(ing.name);
+      if(it&&(it.stock==='нет'||it.stock==='заканчивается')&&!shopList.some(s=>!s.checked&&s.fromId===it.id)){
+        shopList.push({id:uid(),name:it.name,price:it.price,amt:ing.amt||'',unit:ing.unit||'',checked:false,fromId:it.id,fromMealId:m.id});
+        it.inList=true;added++;
+      }
+    });
+  });
+  saveAll();renderShop();showToast(added?`→ Корзина: ${added} товаров`:'Всё уже в корзине или есть в наличии');
+}
+function addMissingAll(){
+  let added=0;
+  items.forEach(it=>{
+    if((it.stock==='нет'||it.stock==='заканчивается')&&!shopList.some(s=>!s.checked&&s.fromId===it.id)){
+      shopList.push({id:uid(),name:it.name,price:it.price,amt:'',unit:'',checked:false,fromId:it.id});
+      it.inList=true;added++;
+    }
+  });
+  saveAll();renderShop();showToast(added?`→ Корзина: ${added} товаров`:'Нет товаров для добавления');
+}
+function addMissingByCategory(cat){
+  let added=0;
+  items.filter(it=>it.cat===cat).forEach(it=>{
+    if((it.stock==='нет'||it.stock==='заканчивается')&&!shopList.some(s=>!s.checked&&s.fromId===it.id)){
+      shopList.push({id:uid(),name:it.name,price:it.price,amt:'',unit:'',checked:false,fromId:it.id});
+      it.inList=true;added++;
+    }
+  });
+  saveAll();renderShop();showToast(added?`→ Корзина: ${added} товаров`:'Нет недостающих в категории');
+}
+function clearByCategory(cat){
+  if(!confirm(`Очистить «${cat}» из корзины?`))return;
+  shopList.filter(s=>s.fromId).forEach(s=>{const it=findItem2(s.fromId);if(it&&it.cat===cat)it.inList=false;});
+  shopList=shopList.filter(s=>{if(!s.fromId)return true;const it=findItem2(s.fromId);return!(it&&it.cat===cat);});
+  saveAll();renderShop();if(clrPanelOpen)renderClrChips();showToast(`Очищено: ${cat}`);
+}
 
 function openAddShopM(){
   shopSelectedItem=null;
@@ -830,18 +930,36 @@ function saveShopItem(){
 function renderMeals(){
   let h='';
   if(curMT==='recipes'){
-    const list=meals.filter(m=>!m.type||m.type==='recipe');
-    if(!list.length)h=emptyState('📖','Добавьте первый рецепт кнопкой +');
-    else{h='<div class="recipe-grid">';list.forEach(m=>h+=recipeTile(m,'recipe'));h+='</div>';}
+    const MEAL_CATS=['все','Завтраки','Супы','Гарниры','Салаты','Мясо','Десерты'];
+    let list=meals.filter(m=>!m.type||m.type==='recipe');
+    const srch=mealSearch.toLowerCase().trim();
+    if(srch)list=list.filter(m=>m.name.toLowerCase().includes(srch));
+    if(mealCatFilter!=='все')list=list.filter(m=>m.cat===mealCatFilter);
+    const chips=MEAL_CATS.map(c=>`<button class="rfc-chip${mealCatFilter===c?' active':''}" onclick="setMealCat('${c}')">${c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('');
+    h=`<div class="recipe-search-bar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="search" placeholder="Поиск рецептов…" value="${escH(mealSearch)}" oninput="mealSearch=this.value;renderMeals()" autocomplete="off"></div>`;
+    h+=`<div class="recipe-filter-chips">${chips}</div>`;
+    if(!list.length)h+=emptyState('📖',srch||mealCatFilter!=='все'?'Ничего не найдено':'Добавьте первый рецепт кнопкой +');
+    else{h+='<div class="recipe-list">';list.forEach(m=>h+=recipeListItem(m,'recipe'));h+='</div>';}
   } else if(curMT==='planned'){
     const list=meals.filter(m=>m.type==='planned');
     if(!list.length)h=emptyState('📅','Нажмите + чтобы выбрать рецепт');
-    else{h='<div class="recipe-grid">';list.forEach(m=>h+=recipeTile(m,'planned'));h+='</div>';}
+    else{h='<div class="recipe-list">';list.forEach(m=>h+=recipeListItem(m,'planned'));h+='</div>';}
   } else{
     if(!cooked.length)h=emptyState('🍽','Готовые блюда появятся здесь');
     else cooked.forEach(c=>h+=cookedCard(c));
   }
   document.getElementById('mealContent').innerHTML=h;
+}
+function setMealCat(cat){mealCatFilter=cat;renderMeals();}
+function recipeListItem(m,mode){
+  const ic=(m.ings||[]).length;const{missing,low}=checkIngs(m.ings);
+  let badge='';
+  if(mode==='planned')badge=`<span class="recipe-list-badge" style="background:var(--blue-bg);color:var(--blue)">планирую</span>`;
+  else if(missing>0)badge=`<span class="recipe-list-badge" style="background:var(--red-bg);color:var(--red)">✕${missing} нет</span>`;
+  else if(low>0)badge=`<span class="recipe-list-badge" style="background:var(--yellow-bg);color:var(--yellow)">⚠${low}</span>`;
+  else if(ic>0)badge=`<span class="recipe-list-badge" style="background:var(--green-bg);color:var(--green)">✓ всё есть</span>`;
+  const catTag=m.cat&&mode!=='planned'?`<span class="recipe-list-tag">${escH(m.cat)}</span>`:'';
+  return`<div class="recipe-list-item" onclick="openRecipeDetail('${m.id}','${mode}')"><div class="recipe-list-main"><div class="recipe-list-name">${escH(m.name)}</div><div class="recipe-list-meta">${badge}${catTag}</div></div><span class="recipe-list-arrow">›</span></div>`;
 }
 function checkIngs(ings){let missing=0,low=0,ok=0;(ings||[]).forEach(ing=>{const it=findItem(ing.name);if(!it||it.stock==='нет')missing++;else if(it.stock==='заканчивается')low++;else ok++;});return{missing,low,ok};}
 
